@@ -6,9 +6,9 @@ ParseHTML::ParseHTML(QString & html) {
 }
 
 ParseHTML::~ParseHTML() {
-	delete content;
-	delete html;
-	delete urls;
+	m_content.clear();
+	m_html.clear();
+	m_urls.clear();
 }
 
 bool ParseHTML::operator() () {
