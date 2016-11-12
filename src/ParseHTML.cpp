@@ -47,12 +47,32 @@ bool ParseHTML::operator() () {
 		} 
 	}
 
+	parseContent();
+	
 	// returns false if no content is found
 	if(content.size() > 0) return true;
 	return false;
 }
 
-
 const QString& ParseHTML::getHtml() {return m_html;}
 const QString& ParseHTML::getContent() {return m_content;}
 const QQueue<QString>& ParserHTML::getUrls() {return m_urls;}
+const QMap<QString, int> & ParseHTML::getKeywords() {return m_keywords;}
+
+void ParseHTML::parseContent() {
+	if(m_content.size()==0) return;
+
+    content.replace('\r', ' '); content.replace('\n', ' ');
+	content.replace('\t', ' '); content.replace('\b', ' ');
+	content.replace('\f', ' '); content.replace('\a', ' ');
+	content.repalce('\v', ' ');
+
+	QString word = "";
+	for(int i=0; i<m_content.size();i++) {
+		if(m_content[i] == ' '){
+			if(!m_keywords.value(word)) m_keywords.insert(word, 1);
+			else m_keyword.insert(word, m_keyword.value(word)+1);
+			word.clear();
+		} else word+=m_content[i];
+	} 
+}
