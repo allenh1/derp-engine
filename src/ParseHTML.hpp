@@ -4,6 +4,7 @@
 #include <iostream>
 #include <QString>
 #include <QQueue>
+#include <QMap>
 
 class ParseHTML {
 private:
