@@ -59,6 +59,6 @@ bool ParseHTML::operator() () {
 }
 
 
-QString& ParseHTML::getHtml() { return m_html; }
-QString& ParseHTML::getContent() {return m_content;}
-QQueue<QString>& ParserHTML::getUrls() {return m_urls;}
+const QString& ParseHTML::getHtml() { return m_html; }
+const QString& ParseHTML::getContent() {return m_content;}
+const QQueue<QString>& ParserHTML::getUrls() {return m_urls;}

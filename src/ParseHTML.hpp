@@ -16,9 +16,9 @@ public:
 	~ParseHTML();
 	bool operator() ();
 
-	QQueue<QString>& getUrls();
-	QString& getContent();
-	QString& getHtml();
+	const QQueue<QString>& getUrls();
+	const QString& getContent();
+	const QString& getHtml();
 };
 
 #endif
