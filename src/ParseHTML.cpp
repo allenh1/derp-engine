@@ -1,14 +1,8 @@
 #include "ParseHTML.hpp"
 
-ParseHTML::ParseHTML(QString & html) {
-	m_html+= html;
+ParseHTML::ParseHTML(const QString & _html) {
+	m_html+=_html;
 	m_content = "";
-}
-
-ParseHTML::~ParseHTML() {
-	m_content.clear();
-	m_html.clear();
-	m_urls.clear();
 }
 
 bool ParseHTML::operator() () {

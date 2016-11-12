@@ -12,8 +12,7 @@ private:
 	QQueue<QString> m_urls;
 	
 public:
-	ParseHTML(QString & html);
-	~ParseHTML();
+	ParseHTML(const QString & html);
 	bool operator() ();
 
 	const QQueue<QString>& getUrls();
