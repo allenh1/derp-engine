@@ -1,9 +1,8 @@
 #include "ParseHTML.hpp"
 
 ParseHTML::ParseHTML(QString & html) {
-	html = new QString(html);
-	content = new QString();
-	urls = new QStack<QString>();
+	m_html+= html;
+	m_content = "";
 }
 
 ParseHTML::~ParseHTML() {
@@ -17,43 +16,49 @@ bool ParseHTML::operator() () {
 
 	state = START; QString url = ""; QString href = "";
 
-	for(int i=0; i<html->size(); i++) {
+	for(int i=0; i<m_html.size(); i++) {
 		switch(state) {
 		case START:
-			if((*html)[i] == '<') state = OPEN;
+			if(m_html[i] == '<') state = OPEN;
 			break;
 		case OPEN:
-			if((*html)[i] == 'h') {
-				href+=(*html)[i];
+			if(m_html[i] == 'h') {
+				href+=m_html[i];
 				state = HREF;
-			} else if((*html)[i]=='>') state = CLOSE;
+			} else if(m_html[i]=='>') state = CLOSE;
 			break;
 		case HREF:
-			if((*html)[i] == '"' && href.size() == 5) {
+			if(m_html[i] == '"' && href.size() == 5) {
 				href.clear();
 				state = URL;
 			} else if(href.size() > 5) {
 				href.clear();
 				state = OPEN;
-			} else href+=(*html)[i];
+			} else href+=m_html[i];
 			break;
 		case URL:
-			if((*html)[i] == '"') state = QUOTE;
-			else url+=(*html)[i]
+			if(m_html[i] == '"') state = QUOTE;
+			else url+=m_html[i];
 			break;
 		case QUOTE:
 			if(url.size()>0) {
-				urls->push(url);
+				m_urls.push(url);
 				url.clear();
-			} if((*html)[i] == '>') state = CLOSE;
+			} if(m_html[i] == '>') state = CLOSE;
 			break;
 		case CLOSE:
-			if((*html)[i] == '<') state = OPEN;
-			else (*content)+=(*html)[i];
+			if(m_html[i] == '<') state = OPEN;
+			else m_content+=m_html[i];
 			break;
 		} 
 	}
-	
-	// returns false if no content found
+
+	// returns false if no content is found
+	if(content.size() > 0) return true;
 	return false;
 }
+
+
+QString& ParseHTML::getHtml() { return &m_html; }
+QString& ParseHTML::getContent() {return &m_content;}
+QQueue<QString>& ParserHTML::getUrls() {return &m_urls;}

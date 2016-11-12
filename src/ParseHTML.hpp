@@ -3,19 +3,22 @@
 
 #include <iostream>
 #include <QString>
-#include <QStack>
+#include <QQueue>
 
 class ParseHTML {
 private:
-	QString * html;
+	QString m_html;
+	QString m_content;
+	QQueue<QString> m_urls;
 	
 public:
-	QString * content;
-	QStack<QString> * urls;
-	
 	ParseHTML(QString & html);
 	~ParseHTML();
 	bool operator() ();
+
+	QQueue<QString>& getUrls();
+	QString& getContent();
+	QString& getHtml();
 };
 
 #endif
