@@ -1,7 +1,7 @@
 #include "ParseHTML.hpp"
 
 ParseHTML::ParseHTML(const QString & _html) {
-	m_html+=_html;
+	m_html=_html;
 	m_content = "";
 }
 
