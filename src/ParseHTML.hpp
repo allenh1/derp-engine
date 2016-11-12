@@ -8,10 +8,11 @@
 class ParseHTML {
 private:
 	QString * html;
+	
+public:
 	QString * content;
 	QStack<QString> * urls;
 	
-public:
 	ParseHTML(QString & html);
 	~ParseHTML();
 	bool operator() ();

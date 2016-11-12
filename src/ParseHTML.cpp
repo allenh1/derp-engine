@@ -13,7 +13,7 @@ ParseHTML::~ParseHTML() {
 }
 
 bool ParseHTML::operator() () {
-	enum {START, OPEN, HREF, URL, QUOTE, CLOSE, CONTENT} state;
+	enum {START, OPEN, HREF, URL, QUOTE, CLOSE} state;
 
 	state = START; QString url = ""; QString href = "";
 
@@ -42,12 +42,14 @@ bool ParseHTML::operator() () {
 			else url+=(*html)[i]
 			break;
 		case QUOTE:
-			if(url.size()>0) url.clear();
-			if((*html)[i] == '>') state = CLOSE;
+			if(url.size()>0) {
+				urls->push(url);
+				url.clear();
+			} if((*html)[i] == '>') state = CLOSE;
 			break;
 		case CLOSE:
-			break;
-		case CONTENT:
+			if((*html)[i] == '<') state = OPEN;
+			else (*content)+=(*html)[i];
 			break;
 		} 
 	}
