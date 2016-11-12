@@ -36,7 +36,7 @@ bool ParseHTML::operator() () {
 			break;
 		case QUOTE:
 			if(url.size()>0) {
-				m_urls.push_back(url);
+				m_urls.enqueue(url);
 				url.clear();
 			} if(m_html[i] == '>') state = CLOSE;
 			break;
