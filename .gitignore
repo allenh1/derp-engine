@@ -1,0 +1,6 @@
+derp-engine
+Makefile
+*~
+*.o
+moc_*
+.qmake.stash
