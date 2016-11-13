@@ -77,7 +77,7 @@ void crawler::parse()
 		return;
 	}
 
-	if (parser.getContent().contains("404: Page")) {
+	if (parser.getContent().contains("404")) {
 		std::cerr<<"Got 404. site: \""
 				 <<p_downloader->get_url().toStdString()<<"\""<<std::endl;
 		return;
