@@ -182,7 +182,7 @@ void master_node::build_message(tcp_connection * p) {
 	if(_msg->size() > 1) {
 		QStringList lines = _msg->split("\n");
 		for(int i=0; i<lines.size();i++) {
-			std::cout<<"line "<<i<<": "<<lines[i].toStdString()<<std::endl;
+			//std::cout<<"line "<<i<<": "<<lines[i].toStdString()<<std::endl;
 			QStringList things = lines[i].split("::");
 			if (things.size() < 2) continue;
 			*htmlDoc+=tableEntryHyperLink; *htmlDoc+=things.at(0);

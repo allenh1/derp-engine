@@ -51,7 +51,10 @@ bool ParseHTML::operator() () {
 		case QUOTE:
 			if(url.size()>0) {
 				if(!url.contains("http://")&&!url.contains("https://")) {
-					if(url[0] == '/' || url[url.size()-1]=='/') url = m_url+url;
+					if(url[0]=='/' &&
+					   url.lastIndexOf('/')==url.size()-1) url.remove(0,1);
+					if(url[0]=='/' ||
+					   url.lastIndexOf('/')==url.size()-1) url = m_url+url;
 					else url = m_url+'/'+url;
 				} if(!url.contains("mailto:") && !url.contains(".tar")) {
 					std::cerr<<"url: "<<url.toStdString()<<std::endl;
