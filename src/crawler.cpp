@@ -57,7 +57,7 @@ void crawler::run()
 		} else if (url.contains("http://")) {
 		    QString host = url.replace("http://", "");
 			/* find the first '/' */
-			std::cout<<"Connecting to host: \""<<host<<"\""<<std::endl;
+			std::cout<<"Connecting to host: \""<<host.toStdString()<<"\""<<std::endl;
 			p_socket->connectToHost(host, http_port,
 									QIODevice::ReadWrite);
 			if (!p_socket->isOpen()) {
