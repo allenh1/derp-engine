@@ -28,13 +28,19 @@ bool crawler::init()
 
 bool crawler::discovered(const QString & url)
 {
-	/**
-	 * @todo search through our list,
-	 * then ask the database.
-	 *
-	 * This is O(log n + n) = O(n)
-	 */
-	return false;
+	if (!m_db.open()) {
+		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
+		return true;
+	} QSqlQuery query(m_db);
+	QString query_string = "SELECT count(*) FROM websites WHERE url = '";
+	query_string += url + "'";
+	query.prepare(query_string);
+
+	if (!query.exec()) {
+		std::cerr<<"Error: Query failed to execute!"<<std::endl;
+		std::cerr<<"Query: \""<<query.lastQuery().toStdString()<<"\""<<std::endl;
+		return true;
+	} return query.size() > 0;
 }
 
 bool crawler::send_url_to_db(QString * url)
