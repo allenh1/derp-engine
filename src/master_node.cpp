@@ -100,6 +100,8 @@ void master_node::handle_home_page(QTcpSocket * p_socket) {
 }
 
 bool master_node::search(QString text) {
+	std::cerr<<"search function called on \""
+			 <<text.toStdString()<<std::endl;
 	if(!m_db.open()) {
 		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
 		return false;
@@ -174,6 +176,7 @@ void master_node::build_message(tcp_connection * p) {
 		for(int i=0; i<_msg->size();i++) {
 			QStringList * things = new QStringList();
 			*things = lines[i].split("/t");
+			if (things->size() < 2) continue;
 			*htmlDoc+=tableEntryHyperLink; *htmlDoc+=things->at(0);
 			*htmlDoc+=tableEntryEndLink; *htmlDoc+="Entry ";
 			*htmlDoc+=QString::number(i);
