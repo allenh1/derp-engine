@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS websites(
   -- url for the website
   url VARCHAR(500) NOT NULL,
   -- small amount of text from the site
-  text VARCHAR(500) NOT NULL,
+  content VARCHAR(500) NOT NULL,
   PRIMARY KEY(website_id)
 );
 
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS website_keyword_relation(
   -- keyword tag
   keyword_id INTEGER NOT NULL,
   -- number of times the word was used
-  times_used UNSIGNED INTEGER NOT NULL,
+  times_used INTEGER NOT NULL,
   -- foreign key setup
   FOREIGN KEY(website_id) REFERENCES websites(website_id),
   FOREIGN KEY(keyword_id) REFERENCES keywords(keyword_id)

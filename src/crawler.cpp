@@ -1,9 +1,11 @@
 #include "crawler.hpp"
 
 crawler::crawler(const QQueue<QString> & _unexplored,
+				 const QSqlDatabase & _db,				 
 				 QObject * _p_parent)
-	: QObject(_p_parent),
-	  m_unexplored(_unexplored)
+	: QObject(_p_parent),	  
+	  m_unexplored(_unexplored),
+	  m_db(_db)
 { m_p_thread = new QThread(); }
 
 crawler::~crawler()
@@ -35,6 +37,24 @@ bool crawler::discovered(const QString & url)
 	return false;
 }
 
+bool crawler::send_url_to_db(QString * url)
+{
+	if (!m_db.open()) {
+		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
+		delete url; return false;
+	} QSqlQuery query(m_db);
+
+	query.prepare("INSERT INTO websites(url) VALUES(?)");
+	query.bindValue(0, *url);
+
+	if (!query.exec()) {
+		std::cerr<<"Error: Query failed to execute!"<<std::endl;
+		std::cerr<<"Query: \""<<query.lastQuery().toStdString()<<"\""<<std::endl;
+		delete url;
+		return false;
+	} delete url; return true;
+} 
+
 void crawler::run()
 {
 	std::cout<<"Crawling..."<<std::endl;
@@ -49,9 +69,7 @@ void crawler::run()
 		/* connect to the host */
 		if (url.contains("https://")) {
 			/* open on port 443 */
-			/**
-			 * @todo figure out how https works...
-			 */
+			/* @todo */
 		} else if (url.contains("http://")) {
 		    QString host = url; host.replace("http://", "");
 			/* find the first '/' */
@@ -86,5 +104,7 @@ void crawler::run()
 				std::cout<<"Discovered: \""<<a.toStdString()<<"\""<<std::endl;
 			}
 		}
+		QString * p_url = new QString(url);
+	    send_url_to_db(p_url);
 	}
 }
