@@ -123,7 +123,7 @@ bool master_node::search(QString text) {
 	}
 
 	for (; query.next();) {
-		*_msg += query.value(0).toString() + "\t"
+		*_msg += query.value(0).toString() + "::"
 			+ query.value(1).toString() + "\n";
 	}
 	return true;
@@ -179,7 +179,7 @@ void master_node::build_message(tcp_connection * p) {
 		QStringList lines = _msg->split("\n");
 		for(int i=0; i<lines.size();i++) {
 			std::cout<<"line "<<i<<": "<<lines[i].toStdString()<<std::endl;
-			QStringList things = lines[i].split("/t");
+			QStringList things = lines[i].split("::");
 			std::cout<<"things[0]= "<<things.at(0).toStdString()<<std::endl;
 			if (things.size() < 2) continue;
 			*htmlDoc+=tableEntryHyperLink; *htmlDoc+=things.at(0);
