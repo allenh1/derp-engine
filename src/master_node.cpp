@@ -128,7 +128,7 @@ bool master_node::search(QString text) {
 
 	for (; query.next();) {
 		*_msg += query.value(0).toString() + "::"
-			+ query.value(1).toString() + "::" + query.value(2).toString();
+			+ query.value(1).toString() + "::" + query.value(2).toString() + "\n";
 	}
 	return true;
 }
@@ -193,6 +193,5 @@ void master_node::build_message(tcp_connection * p) {
 	} else collect+=_to_browser->toStdString().c_str();
 	QString * p_msg = new QString(collect);
 	Q_EMIT(send_html(p, p_msg));
-	_to_browser->clear();
-	_msg->clear();
+	_to_browser->clear(); _msg->clear();
 }

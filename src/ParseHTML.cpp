@@ -103,7 +103,7 @@ void ParseHTML::parseContent() {
 	m_content.replace('\t', ""); m_content.replace('\b', "");
 	m_content.replace('\f', ""); m_content.replace('\a', "");
 	m_content.replace('\v', ""); m_content.replace('{', "");
-	m_content.replace('<', ""); m_content.repalce('>', "");
+	m_content.replace('<', ""); m_content.replace('>', "");
 	m_content.replace('}', "");
 
 	QString word = "";
