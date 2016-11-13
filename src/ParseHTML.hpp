@@ -8,6 +8,7 @@
 
 class ParseHTML {
 private:
+	QString m_url;
 	QString m_html;
 	QString m_content;
 	QQueue<QString> m_urls;
@@ -15,7 +16,7 @@ private:
 
 	void parseContent();
 public:
-	ParseHTML(const QString & html);
+	ParseHTML(const QString & _url, const QString & _html);
 	bool operator() ();
 
 	const QMap<QString, int>& getKeywords();
