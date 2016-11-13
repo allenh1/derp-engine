@@ -1,9 +1,7 @@
 #include "ParseHTML.hpp"
 
 ParseHTML::ParseHTML(const QString & _url, const QString & _html) {
-	m_url=_url;
-	if(m_url[m_url.size()-1]!='/') m_url+='/';
-	m_html=_html; m_content = "";
+	m_url=_url; m_html=_html; m_content = "";
 }
 
 bool ParseHTML::operator() () {
@@ -52,8 +50,9 @@ bool ParseHTML::operator() () {
 			break;
 		case QUOTE:
 			if(url.size()>0) {
-				if(!url.contains("http://") && !url.contains("https://")) {
-					url = m_url+url;
+				if(!url.contains("http://")) {
+					if(url[0] == '/') url = m_url+url;
+					else url = m_url+'/'+url;
 				} if(!url.contains("mailto:")) {
 					std::cerr<<"url: "<<url.toStdString()<<std::endl;
 					m_urls.enqueue(url);

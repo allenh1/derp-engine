@@ -2,10 +2,10 @@
 /* @todo #include "User.h" */
 
 tcp_thread::tcp_thread(
-	const QString & _hostname,                /*  hostname for TCP thread construction  */
-	const quint16 & _port,                    /* port on which we construct this server */
-	const bool & _master_mode,                /*         are we in master mode?         */
-	QObject * parent                          /*         parent of this QObject         */
+	const QString & _hostname,         /*  hostname for TCP thread construction  */
+	const quint16 & _port,             /* port on which we construct this server */
+	const bool & _master_mode,         /*         are we in master mode?         */
+	QObject * parent                   /*         parent of this QObject         */
 	)
 	: QObject(parent)
 {
@@ -19,7 +19,8 @@ tcp_thread::tcp_thread(
 bool tcp_thread::init()
 {
 	/* forward accepted connections to our accept connection */
-	connect(m_pServer, &QTcpServer::newConnection, this, &tcp_thread::acceptConnection);
+	connect(m_pServer, &QTcpServer::newConnection,
+			this, &tcp_thread::acceptConnection);
 
 	/* listen for any host on our port */
 	if (m_pServer->listen(QHostAddress::Any, m_port)) {
@@ -37,7 +38,8 @@ bool tcp_thread::writeData(QByteArray data, tcp_connection * receiver)
    
 	QTcpSocket * to_receive = (QTcpSocket*) receiver->get_socket();
 
-	connect(to_receive, &QAbstractSocket::disconnected, to_receive, &QObject::deleteLater);
+	connect(to_receive, &QAbstractSocket::disconnected,
+			to_receive, &QObject::deleteLater);
 
 	to_receive->write(data);
 	to_receive->disconnectFromHost();
@@ -51,7 +53,8 @@ void tcp_thread::disconnected()
 	/* convert to tcp_connection */
 	QString _host = quitter->peerName();
 
-	std::cout<< "Client "<< QHostAddress(quitter->peerAddress().toIPv4Address()).toString().toStdString();
+	std::cout<< "Client "<< QHostAddress(
+		quitter->peerAddress().toIPv4Address()).toString().toStdString();
 	std::cout<<":" << quitter->peerPort();
 	std::cout<< " has left the server." << std::endl;
 }
@@ -61,9 +64,12 @@ void tcp_thread::acceptConnection()
 	QTcpSocket * client = m_pServer->nextPendingConnection();
 
 	if (client) {
-		connect(client, &QAbstractSocket::disconnected, client, &QObject::deleteLater);
-		connect(client, &QAbstractSocket::disconnected, this, &tcp_thread::disconnected);
-		connect(client, &QIODevice::readyRead, this, &tcp_thread::readFromClient);
+		connect(client, &QAbstractSocket::disconnected,
+				client, &QObject::deleteLater);
+		connect(client, &QAbstractSocket::disconnected,
+				this, &tcp_thread::disconnected);
+		connect(client, &QIODevice::readyRead,
+				this, &tcp_thread::readFromClient);
 	}
 }
 
@@ -88,7 +94,8 @@ void tcp_thread::readFromClient()
 void tcp_thread::sendMessage(QString msg, tcp_connection * request)
 {
 	if (!writeData(msg.toUtf8(), request)) {
-		std::cerr<<"Unable to write message \""<<msg.toStdString()<<"\" to client."<<std::endl;
+		std::cerr<<"Unable to write message \""
+				 <<msg.toStdString()<<"\" to client."<<std::endl;
 	}
 }
 

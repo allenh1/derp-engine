@@ -35,8 +35,8 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
 	QQueue<QString> urls; QSqlDatabase db = setup_db();
-	urls.enqueue("http://allen-software.com");
-	urls.enqueue("http://allen-software.com/bcc-doc");
+	urls.enqueue("http://www.astro.cornell.edu");
+	//urls.enqueue("http://kernel.org");
 	crawler buddy(urls, db);
 
 	if (!buddy.init()) {
