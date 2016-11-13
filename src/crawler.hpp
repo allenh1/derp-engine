@@ -4,6 +4,7 @@
 #include <QSqlRecord>
 #include <QSqlQuery>
 #include <QtCore>
+#include "file_downloader.hpp"
 #include "ParseHTML.hpp"
 
 class crawler : public QObject
@@ -22,7 +23,8 @@ public:
 
 	Q_SLOT void run();
 	Q_SLOT void stop();
-	Q_SLOT bool send_url_to_db(QString *);
+	Q_SLOT void parse();
+	Q_SLOT bool send_url_to_db(QString);
 
 	Q_SIGNAL void got_url(QString *);
 	Q_SIGNAL void no_more_urls();
@@ -30,7 +32,7 @@ private:
 	const quint16 http_port = 80;
 	QThread * m_p_thread;
     volatile bool m_continue = true;
-	QSqlDatabase m_db;
 	QQueue<QString> m_unexplored;
+	QSqlDatabase m_db;
 };
 #endif
