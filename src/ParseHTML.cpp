@@ -12,8 +12,8 @@ bool ParseHTML::operator() () {
 
 	state = START; QString url = ""; QString href = "";
 	QString style = "";
-	std::cerr<<std::endl<<"html to parse: "<<std::endl;
-	std::cerr<<m_html.toStdString()<<std::endl;
+	//std::cerr<<std::endl<<"html to parse: "<<std::endl;
+	//std::cerr<<m_html.toStdString()<<std::endl;
 	
 	for(int i=0; i<m_html.size(); i++) {
 		switch(state) {
