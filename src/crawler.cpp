@@ -72,13 +72,27 @@ void crawler::run()
 			/* @todo */
 		} else if (url.contains("http://")) {
 		    QString host = url; host.replace("http://", "");
+			QStringList split = host.split('/');
+			host = split[0]; /* up to the first '/' */
+			QString to_grab("/");
+			for (int x = 1; x < split.size(); ++x) {
+				to_grab += split[x];
+				if (split[x].indexOf('.') == -1) to_grab += "/";
+			} if (split.size() > 1 && split[split.size() - 1].indexOf('.') == -1) {
+				to_grab += "index.html";
+			}
+			
 			/* find the first '/' */
 			std::cout<<"Connecting to host: \""<<host.toStdString()<<"\""<<std::endl;
 			p_socket->connectToHost(host, http_port,
 									QIODevice::ReadWrite);
 			if (!p_socket->isOpen()) {
 				std::cerr<<"WARNING: failed to open socket!"<<std::endl;
-			} p_socket->write("GET / HTTP/1.0\r\n\r\n");
+			}
+			QString get = "GET "; get += to_grab + " HTTP/1.0\r\n\r\n";
+			get += '\0'; /* just to be extra sure */
+			std::cout<<std::endl<<"\t"<<get.toStdString()<<std::endl;
+			p_socket->write(get.toStdString().c_str());
 			/* wait for our request to finish */
 			p_socket->waitForBytesWritten(-1);
 			/* wait to be able to read */

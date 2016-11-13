@@ -36,8 +36,8 @@ int main(int argc, char **argv)
     QCoreApplication app(argc, argv);
 	QQueue<QString> urls; QSqlDatabase db = setup_db();
 	urls.enqueue("http://allen-software.com");
-
-	crawler buddy(urls, db, &app);
+	urls.enqueue("http://allen-software.com/bcc-doc");
+	crawler buddy(urls, db);
 
 	if (!buddy.init()) {
 		std::cerr<<"Error: crawler failed to initialize!"<<std::endl;
