@@ -3,6 +3,8 @@ CREATE TABLE IF NOT EXISTS websites(
   website_id INTEGER NOT NULL AUTO_INCREMENT,
   -- url for the website
   url VARCHAR(500) NOT NULL,
+  -- title of website
+  title VARCHAR(100) NOT NULL,
   -- small amount of text from the site
   content VARCHAR(500) NOT NULL,
   PRIMARY KEY(website_id)

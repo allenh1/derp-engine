@@ -1,11 +1,11 @@
 #include "ParseHTML.hpp"
 
 ParseHTML::ParseHTML(const QString & _url, const QString & _html) {
-	m_url=_url; m_html=_html; m_content = "";
+	m_url=_url; m_html=_html; m_content = ""; m_title="";
 }
 
 bool ParseHTML::operator() () {
-	enum {START, OPEN, ST, STYLE,
+	enum {START, OPEN, ST, STYLE, TITLE, TI,
 		  HREF, URL, QUOTE, CLOSE} state;
 
 	state = START; QString url = ""; QString href = "";
@@ -24,6 +24,8 @@ bool ParseHTML::operator() () {
 			} else if(m_html[i]=='>') state=CLOSE;
 			else if(m_html[i]=='s') {
 				style+=m_html[i]; state=ST;
+			} else if(m_html[i]=='t') {
+				style+=m_html[i]; state=TI;
 			} break;
 		case HREF:
 			if(m_html[i] == '"' && href.size() == 5) {
@@ -33,6 +35,17 @@ bool ParseHTML::operator() () {
 			} else if(m_html[i]=='>') {
 				href.clear(); state=CLOSE;
 			} else href+=m_html[i];
+			break;
+		case TI:
+			if(m_html[i]=='>' && style.contains("title")) {
+				state=TITLE; style.clear();
+			} else if(m_html[i]=='>') {
+				state=START; style.clear();
+			} else style+=m_html[i];
+			break;
+		case TITLE:
+			if(m_html[i]=='<') {m_title+=style; state=OPEN; style.clear();}
+			else style+=m_html[i];
 			break;
 		case ST:
 			if(m_html[i]=='>' && style.contains("style")) {
@@ -77,6 +90,7 @@ bool ParseHTML::operator() () {
 	return true;
 }
 
+const QString& ParseHTML::getTitle() {return m_title;}
 const QString& ParseHTML::getHtml() {return m_html;}
 const QString& ParseHTML::getContent() {return m_content;}
 const QQueue<QString>& ParseHTML::getUrls() {return m_urls;}
@@ -88,7 +102,7 @@ void ParseHTML::parseContent() {
     m_content.replace('\r', ""); m_content.replace('\n', ' ');
 	m_content.replace('\t', ""); m_content.replace('\b', "");
 	m_content.replace('\f', ""); m_content.replace('\a', "");
-	m_content.replace('\v', "");
+	m_content.replace('\v', ""); m_content.replace('{', "");
 
 	QString word = "";
 	enum {WHITE, LETTER} state; state=LETTER;

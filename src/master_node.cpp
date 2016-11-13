@@ -128,7 +128,7 @@ bool master_node::search(QString text) {
 
 	for (; query.next();) {
 		*_msg += query.value(0).toString() + "::"
-			+ query.value(1).toString() + "\n";
+			+ query.value(1).toString() + "::" + query.value(2).toString();
 	}
 	return true;
 }
@@ -186,9 +186,8 @@ void master_node::build_message(tcp_connection * p) {
 			QStringList things = lines[i].split("::");
 			if (things.size() < 2) continue;
 			*htmlDoc+=tableEntryHyperLink; *htmlDoc+=things.at(0);
-			*htmlDoc+=tableEntryEndLink; *htmlDoc+="Entry ";
-			*htmlDoc+=QString::number(i);
-			*htmlDoc+=tableEntryEndSummary; *htmlDoc+=things.at(1);
+			*htmlDoc+=tableEntryEndLink; *htmlDoc+=things.at(1);
+			*htmlDoc+=tableEntryEndSummary; *htmlDoc+=things.at(2);
 			*htmlDoc+=tableEntryEndText;
 		} *htmlDoc+=htmlEnd; collect+=*htmlDoc;
 	} else collect+=_to_browser->toStdString().c_str();

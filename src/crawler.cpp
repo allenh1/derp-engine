@@ -43,15 +43,16 @@ bool crawler::discovered(const QString & url)
 	} return query.size();
 }
 
-bool crawler::send_url_to_db(QString url, QString text)
+bool crawler::send_url_to_db(QString url, QString title, QString text)
 {
 	if (!m_db.open()) {
 		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
 	    return false;
 	} QSqlQuery query(m_db);
 
-	query.prepare("INSERT INTO websites(url, text) VALUES(?, ?)");
-	query.bindValue(0, url); query.bindValue(1, text);
+	query.prepare("INSERT INTO websites(url, title, text) VALUES(?, ?, ?)");
+	query.bindValue(0, url); query.bindValue(1, title);
+	query.bindValue(2, text);
 
 	if (!query.exec()) {
 		std::cerr<<"Error: Query failed to execute!"<<std::endl;
@@ -87,7 +88,7 @@ void crawler::parse()
 		if (!discovered(a)) {
 			/* if not seen, enqueue */
 			m_unexplored.enqueue(a);
-			if (!send_url_to_db(a, a)) {
+			if (!send_url_to_db(a, a, a)) {
 				std::cerr<<"DB communication failed!"<<std::endl;
 			}
 			std::cout<<"Discovered["<<m_unexplored.size() - 1
@@ -136,7 +137,8 @@ void crawler::run()
 			continue;
 		}
 
-		if (!send_url_to_db(url, parser.getContent().left(500))) {
+		if (!send_url_to_db(url, parser.getTitle(),
+							parser.getContent().left(500))) {
 			std::cerr<<"DB communication failed!"<<std::endl;
 		}
 		

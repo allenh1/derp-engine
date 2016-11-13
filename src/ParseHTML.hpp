@@ -10,6 +10,7 @@ class ParseHTML {
 private:
 	QString m_url;
 	QString m_html;
+	QString m_title;
 	QString m_content;
 	QQueue<QString> m_urls;
 	QMap<QString, int> m_keywords;
@@ -23,6 +24,7 @@ public:
 	const QQueue<QString>& getUrls();
 	const QString& getContent();
 	const QString& getHtml();
+	const QString& getTitle();
 };
 
 #endif
