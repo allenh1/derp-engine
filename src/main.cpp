@@ -35,28 +35,15 @@ QSqlDatabase setup_db()
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
-	QQueue<QString> url1; // QSqlDatabase db = setup_db();
-	QQueue<QString> url2;
-    //	url1.enqueue("http://www.purdue.edu");
-	// url1.enqueue("http://allen-software.com");
-	// url1.enqueue("http://www.mysql.com");
-	// url1.enqueue("http://netflix.com");
-	// url1.enqueue("http://wiki.ros.org");
-	// url1.enqueue("http://vanderbilt.edu");
-	// url1.enqueue("http://www.52tapes.com");
-	// url1.enqueue("http://labs.tineye.com/multicolr/");
-	// url1.enqueue("http://minutelabs.io");
-	// url1.enqueue("http://browsehappy.com");
-	// url1.enqueue("http://www.purdue.edu");
-	// url1.enqueue("https://www.elegantthemes.com");
-	// url1.enqueue("https://www.reddit.com");
-	// url1.enqueue("https://www.amazon.com");
-	//crawler buddy(url1, db);
-	master_node node("localhost", 2016);
-	node.init();
-	// if (!buddy.init()) {
-	// 	std::cerr<<"Error: crawler failed to initialize!"<<std::endl;
-	// 	return 1;
-	// }
-	return app.exec();
+	if (argc == 3 && !strcmp(argv[1], "--crawl")) {
+		
+		QQueue<QString> urls; QSqlDatabase db = setup_db();
+		urls.enqueue(QString(argv[2]));
+		crawler buddy(urls, db); buddy.init();
+		return app.exec();
+	} else {
+		master_node node("localhost", 2016);
+		node.init();
+		return app.exec();
+	}
 }
