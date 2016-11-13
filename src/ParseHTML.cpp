@@ -50,7 +50,7 @@ bool ParseHTML::operator() () {
 			break;
 		case QUOTE:
 			if(url.size()>0) {
-				if(!url.contains("http://")) {
+				if(!url.contains("http://")&&!url.contains("https://")) {
 					if(url[0] == '/') url = m_url+url;
 					else url = m_url+'/'+url;
 				} if(!url.contains("mailto:") && !url.contains(".tar")) {
