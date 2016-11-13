@@ -11,7 +11,7 @@ tcp_thread::tcp_thread(
 {
 	m_hostname = _hostname;
 	m_port = _port;
-	m_master_mode = _master_mode;
+	m_master_mode = true;
 	m_pServer = new QTcpServer(this);
 	m_pTcpMessages = new QQueue<tcp_connection>();
 }
@@ -89,6 +89,16 @@ void tcp_thread::readFromClient()
 	QString temp = QString(bae);
 	QString hostname = pClientSocket->peerName();
 	text += temp.replace("\r\n", "");
+
+	if (text.contains("search?word=")) {
+		std::cout<<"search requested"<<std::endl;
+		text.replace("search?word=","");
+		QString * temp = new QString(text);
+		Q_EMIT(got_search(temp));
+	} else {
+		std::cout<<"home page requested"<<std::endl;
+		Q_EMIT(got_home_page());
+	}
 }
 
 void tcp_thread::sendMessage(QString msg, tcp_connection * request)

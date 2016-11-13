@@ -7,6 +7,8 @@
 #include <QtCore>
 #include <QDebug>
 
+#include "tcp_connection.hpp"
+
 class tcp_thread : public QObject
 {
 	Q_OBJECT
@@ -27,6 +29,8 @@ public:
 	Q_SIGNAL void readIt(QTcpSocket*);
 	Q_SIGNAL void receivedMessage();
 	Q_SIGNAL void dropped_connection(tcp_connection *);
+	Q_SIGNAL void got_home_page();
+	Q_SIGNAL void got_search(QString * text);
 	
 	Q_SLOT void echoReceived(QString);
 
@@ -39,6 +43,7 @@ private:
 	QString m_hostname;
 	quint16 m_port;
 	quint16 m_blockSize;
+	bool m_master_mode;
 
 	QQueue<tcp_connection> * m_pTcpMessages;
 	QList<tcp_connection*> m_tcp_connections;

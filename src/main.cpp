@@ -43,12 +43,12 @@ int main(int argc, char **argv)
 	// url1.enqueue("http://wiki.ros.org");
 	// url1.enqueue("http://vanderbilt.edu");
 	// url1.enqueue("http://www.52tapes.com");
-	// url1.enqueue("http://www.junk-culture.com");
+	url1.enqueue("http://labs.tineye.com/multicolr/");
 	// url1.enqueue("http://minutelabs.io");
 	// url1.enqueue("http://browsehappy.com");
-	url1.enqueue("http://www.purdue.edu");
-	url1.enqueue("https://www.elegantthemes.com");
-	url1.enqueue("https://www.reddit.com");
+	//url1.enqueue("http://www.purdue.edu");
+	//url1.enqueue("https://www.elegantthemes.com");
+	//url1.enqueue("https://www.reddit.com");
 	
 	crawler buddy(url1, db);
 	
