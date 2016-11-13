@@ -180,7 +180,6 @@ void master_node::build_message(tcp_connection * p) {
 		for(int i=0; i<lines.size();i++) {
 			std::cout<<"line "<<i<<": "<<lines[i].toStdString()<<std::endl;
 			QStringList things = lines[i].split("::");
-			std::cout<<"things[0]= "<<things.at(0).toStdString()<<std::endl;
 			if (things.size() < 2) continue;
 			*htmlDoc+=tableEntryHyperLink; *htmlDoc+=things.at(0);
 			*htmlDoc+=tableEntryEndLink; *htmlDoc+="Entry ";
