@@ -3,7 +3,7 @@
 #include <QtNetwork>
 #include <iostream>
 #include <QtCore>
-#include "parseHTML.hpp"
+#include "ParseHTML.hpp"
 
 class crawler : public QObject
 {
@@ -13,16 +13,17 @@ public:
 	virtual ~crawler();
 
 	bool init();
-
-	const bool & is_running() { return m_continue; }
+	bool discovered(const QString & url);
+	const volatile bool & is_running() { return m_continue; }
 	const QThread * get_thread() { return m_p_thread; }
-	const QQueue & get_unexplored() { return m_unexplored; }
+	const QQueue<QString> & get_unexplored() { return m_unexplored; }
 
 	Q_SLOT void run();
 	Q_SLOT void stop();
 
 	Q_SIGNAL void got_url(QString *);
 private:
+	const quint16 http_port = 80;
 	QThread * m_p_thread;
     volatile bool m_continue = true;
 
