@@ -70,7 +70,7 @@ private:
 	const char * htmlEndTitle = "</title></head><body><h1>";
 	const char * htmlEndHead = "</h1><table><tbody>";
 	const char * htmlLine = "<tr><th colspan=\"5\"><hr></th></tr>";
-	const char * tableEntryHyperLink = "<tr><td><details><summary><a  href=\"";
+	const char * tableEntryHyperLink = "<tr><td><details open><summary><a  href=\"";
 	const char * tableEntryEndLink = "\">";
 	const char * tableEntryEndSummary = "</a></summary>";
 	const char * tableEntryEndText = "</td></tr>";
