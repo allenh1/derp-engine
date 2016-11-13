@@ -94,10 +94,10 @@ void tcp_thread::readFromClient()
 		std::cout<<"search requested"<<std::endl;
 		text.replace("search?word=","");
 		QString * temp = new QString(text);
-		Q_EMIT(got_search(temp));
+		Q_EMIT(got_search(pClientSocket, temp));
 	} else {
 		std::cout<<"home page requested"<<std::endl;
-		Q_EMIT(got_home_page());
+		Q_EMIT(got_home_page(pClientSocket));
 	}
 }
 

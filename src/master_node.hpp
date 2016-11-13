@@ -44,13 +44,15 @@ public:
 	Q_SIGNAL void send_info(tcp_connection * receiver);
 
 	/* Callback functions for tcp connections */
-	Q_SLOT void handle_search(QString * text);
-	Q_SLOT void handle_home_page();
+	Q_SLOT void handle_search(QTcpSocket * p_socket, QString * text);
+	Q_SLOT void handle_home_page(QTcpSocket * p_socket);
 	Q_SLOT bool search(QString text);
 
 	Q_SLOT QSqlDatabase setup_db();
 	
 	Q_SLOT void stop() { m_continue = false; }
+
+	Q_SIGNAL void send_html(tcp_connection *, QString *);
 private:
 	volatile bool m_continue = true;
 
@@ -83,7 +85,7 @@ private:
 	const char * s_name = "myhttp";
 	const char * ctype = "Content-type:";
 
-	void build_message();
+	void build_message(tcp_connection *);
 };
 #endif
 

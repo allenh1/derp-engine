@@ -9,7 +9,9 @@
  * @param _port Port on which to construct the master.
  * @param _p_parent Parent QObject
  */
-master_node::master_node(const QString & _hostname, const quint16 & _port, QObject * _p_parent)
+master_node::master_node(const QString & _hostname,
+						 const quint16 & _port,
+						 QObject * _p_parent)
    : QObject(_p_parent),
 	 m_hostname(_hostname),
 	 m_port(_port)
@@ -48,12 +50,22 @@ bool master_node::init()
 
    m_db = setup_db();
 
-   
+   connect(m_p_tcp_thread, &tcp_thread::got_search,
+		   this, &master_node::handle_search,
+		   Qt::DirectConnection);
+   connect(m_p_tcp_thread, &tcp_thread::got_home_page,
+		   this, &master_node::handle_home_page,
+		   Qt::DirectConnection);
+   connect(this, &master_node::send_html,
+		   m_p_tcp_thread, &tcp_thread::disconnect_client,
+		   Qt::DirectConnection);
    return true;
 }
 
 
-void master_node::handle_search(QString * text) {
+void master_node::handle_search(QTcpSocket * p_socket, QString * text) {
+	QString host = p_socket->peerName();
+	tcp_connection * client = new tcp_connection(host, p_socket);
 	QStringList words = text->split("+");
     text->replace("+", " ");
 	
@@ -75,12 +87,16 @@ void master_node::handle_search(QString * text) {
 		} else _msg = new QString("OK\r\n");
 	} catch ( ... ) {
 		_msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");
-	} build_message();
+	} build_message(client);
 }
 
-void master_node::handle_home_page() {
-	QString home = "derp-engine.html"; QFile page(home);
+void master_node::handle_home_page(QTcpSocket * p_socket) {
+	QString host = p_socket->peerName();
+	tcp_connection * client = new tcp_connection(host, p_socket);
+	QString home = "src/derp-engine.html"; QFile page(home);
+	if (!page.open(QIODevice::ReadOnly)) std::cerr<<"*shrugs*"<<std::endl;
 	QByteArray all = page.readAll(); (*_to_browser)+=all;
+	build_message(client);
 }
 
 bool master_node::search(QString text) {
@@ -90,8 +106,8 @@ bool master_node::search(QString text) {
 	} 
 
 	QSqlQuery query(m_db);
-	QString txt = "SELECT url, text FROM websites WHERE text LIKE %";
-	txt += "\"" + text + "\"" + "%";
+	QString txt = "SELECT url, text FROM websites WHERE text LIKE \"%";
+	txt += text + "%\"";
 	query.prepare(txt);
 	
 	if(!query.exec()) {
@@ -140,7 +156,8 @@ QSqlDatabase master_node::setup_db() {
 	return db;
 }
 
-void master_node::build_message() {
+void master_node::build_message(tcp_connection * p) {
+	std::cout<<"building message"<<std::endl;
 	QString collect;
 	collect+=http; collect+=sp; collect+="200 OK"; collect+=sp;
 	collect+="Document"; collect+=sp; collect+="follows"; collect+=crlf;
@@ -148,20 +165,22 @@ void master_node::build_message() {
 	collect+=ctype; collect+=sp; collect+="text/html"; collect+=crlf;
 	collect+=crlf;
 
-	QString htmlDoc = "";
-	htmlDoc+=htmlBegin; htmlDoc+="Derp-Engine Results"; htmlDoc+=htmlEndTitle;
-	htmlDoc+="Derp-Engine Results:"; htmlDoc+=htmlEndHead; htmlDoc+=htmlLine;
+	QString * htmlDoc = new QString();
+	*htmlDoc+= QString(htmlBegin) + "Derp-Engine Results" + htmlEndTitle
+		+ "Derp-Engine Results:" + htmlEndHead + htmlLine;
 	
 	QStringList lines = _msg->split("\n");
 	if(_msg->size() > 0) {
 		for(int i=0; i<_msg->size();i++) {
-			QStringList things = lines[i].split("/t");
-			htmlDoc+=tableEntryHyperLink; htmlDoc+=things[0];
-			htmlDoc+=tableEntryEndLink; htmlDoc+="Entry ";
-			htmlDoc+=QString::number(i);
-			htmlDoc+=tableEntryEndSummary; htmlDoc+=things[1];
-			htmlDoc+=tableEntryEndText;
-		} htmlDoc+=htmlEnd; collect+=htmlDoc;
+			QStringList * things = new QStringList();
+			*things = lines[i].split("/t");
+			*htmlDoc+=tableEntryHyperLink; *htmlDoc+=things->at(0);
+			*htmlDoc+=tableEntryEndLink; *htmlDoc+="Entry ";
+			*htmlDoc+=QString::number(i);
+			*htmlDoc+=tableEntryEndSummary; *htmlDoc+=things->at(1);
+			*htmlDoc+=tableEntryEndText;
+		} *htmlDoc+=htmlEnd; collect+=htmlDoc;
 	} else collect+=_to_browser->toStdString().c_str();
-	_to_browser->clear(); _to_browser=new QByteArray(collect.toStdString().c_str());
+	QString * p_msg = new QString(collect);
+	Q_EMIT(send_html(p, p_msg));
 }

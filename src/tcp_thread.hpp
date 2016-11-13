@@ -29,8 +29,8 @@ public:
 	Q_SIGNAL void readIt(QTcpSocket*);
 	Q_SIGNAL void receivedMessage();
 	Q_SIGNAL void dropped_connection(tcp_connection *);
-	Q_SIGNAL void got_home_page();
-	Q_SIGNAL void got_search(QString * text);
+	Q_SIGNAL void got_home_page(QTcpSocket*);
+	Q_SIGNAL void got_search(QTcpSocket*,QString*);
 	
 	Q_SLOT void echoReceived(QString);
 
