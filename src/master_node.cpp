@@ -122,8 +122,10 @@ bool master_node::search(QString text) {
 		return true;
 	}
 
-	for (; query.next();) *_msg += query.value(0).toString() + "\t"
-							  + query.value(1).toString() + "\n";
+	for (; query.next();) {
+		*_msg += query.value(0).toString() + "\t"
+			+ query.value(1).toString() + "\n";
+	}
 	return true;
 }
 
@@ -170,10 +172,13 @@ void master_node::build_message(tcp_connection * p) {
 	QString * htmlDoc = new QString();
 	*htmlDoc+= QString(htmlBegin) + "Derp-Engine Results" + htmlEndTitle
 		+ "Derp-Engine Results:" + htmlEndHead + htmlLine;
+
+	std::cout<<"msg: "<<_msg->toStdString()<<std::endl;
 	
-	QStringList lines = _msg->split("\n");
-	if(lines.size() > 1) {
+	if(_msg->size() > 1) {
+		QStringList lines = _msg->split("\n");
 		for(int i=0; i<lines.size();i++) {
+			std::cout<<"line "<<i<<": "<<lines[i].toStdString()<<std::endl;
 			QStringList things = lines[i].split("/t");
 			if (things.size() < 2) continue;
 			*htmlDoc+=tableEntryHyperLink; *htmlDoc+=things.at(0);
