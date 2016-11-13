@@ -32,6 +32,7 @@ private:
 	const quint16 http_port = 80;
 	QThread * m_p_thread;
     volatile bool m_continue = true;
+	volatile bool m_saving_file = true;
 	QQueue<QString> m_unexplored;
 	QSqlDatabase m_db;
 };

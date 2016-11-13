@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     QCoreApplication app(argc, argv);
 	QQueue<QString> url1; QSqlDatabase db = setup_db();
 	QQueue<QString> url2;
-	url1.enqueue("http://www.purdue.edu");
+    //	url1.enqueue("http://www.purdue.edu");
 	url1.enqueue("http://allen-software.com");
 	url1.enqueue("http://www.mysql.com");
 	url1.enqueue("http://netflix.com");

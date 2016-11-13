@@ -32,8 +32,8 @@ bool crawler::discovered(const QString & url)
 		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
 		return true;
 	} QSqlQuery query(m_db);
-	QString query_string = "SELECT * FROM websites WHERE url = '";
-	query_string += url + "'";
+	QString query_string = "SELECT * FROM websites WHERE url = \"";
+	query_string += url + "\"";
 	query.prepare(query_string);
 
 	if (!query.exec()) {
@@ -64,7 +64,8 @@ void crawler::parse()
 {
 	/* get the sender */
 	FileDownloader * p_downloader = qobject_cast<FileDownloader*>(sender());
-	QString read;
+	QString read; std::cerr<<std::endl<<"\t******** In parse! ********"
+						   <<std::endl<<std::endl;
 	/* construct a parser */
 	ParseHTML parser(p_downloader->get_url(),
 					 read = QString(p_downloader->downloadedData()));
@@ -89,42 +90,31 @@ void crawler::parse()
 			if (!send_url_to_db(a)) {
 				std::cerr<<"DB communication failed!"<<std::endl;
 			}
-			std::cout<<"Discovered: \""<<a.toStdString()<<"\""<<std::endl;
+			std::cout<<"Discovered["<<m_unexplored.size() - 1
+					 <<"]: \""<<a.toStdString()<<"\""<<std::endl;
 		}
 	}
+
+	std::cerr<<std::endl<<"\t******** Leaving Parse! ********"
+			 <<std::endl<<std::endl;
+	m_saving_file = false;
 }
 
 void crawler::run()
 {
 	std::cout<<"Crawling..."<<std::endl;
 	/* run loop for the crawler */
-	for (; m_continue && m_unexplored.size(); m_p_thread->msleep(1000)) {
+	for (; m_continue && m_unexplored.size();) {
 		std::cout<<std::endl<<"\t*** Looped around! ***"<<std::endl;
 		/* remove the first unexplored url */
 		QString url = m_unexplored.dequeue();
-		/* this will hold the fetched HTML */
-		QString read = "";
+		m_saving_file = true;
 		/* connect to the host */
-		if (url.contains("https://")) {
-			/* open on port 443 */
-			/* @todo */
-		} else if (url.contains("http://")) {
-		    QString host = url; host.replace("http://", "");
-			QStringList split = host.split('/');
-			host = split[0]; /* up to the first '/' */
-			QString to_grab("/");
-			for (int x = 1; x < split.size(); ++x) {
-				to_grab += split[x];
-				if (split[x].indexOf('.') == -1) to_grab += "/";
-			} if (split.size() > 1 && split[split.size() - 1].indexOf('.') == -1) {
-				to_grab += "index.html";
-			}
-			
-			/* find the first '/' */
-			std::cout<<"Connecting to host: \""<<host.toStdString()<<"\""<<std::endl;
-			FileDownloader * p_fd = new FileDownloader(QUrl(url));
+		FileDownloader * p_fd = new FileDownloader(QUrl(url));
 
-			connect(p_fd, &FileDownloader::downloaded, this, &crawler::parse);
-		} else continue;
+		connect(p_fd, &FileDownloader::downloaded, this, &crawler::parse,
+				Qt::DirectConnection);
+
+		//for (; m_saving_file; m_p_thread->msleep(100));
 	} std::cerr<<"Somehow we hit a wall? What?"<<std::endl;
 }
