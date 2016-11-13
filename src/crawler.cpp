@@ -8,8 +8,6 @@ crawler::crawler(const QQueue<QString> & _unexplored,
 
 crawler::~crawler()
 {
-	m_continue = false;
-	if (m_p_thread->isRunning()) m_p_thread->wait();
 	delete m_p_thread;
 }
 
@@ -55,7 +53,7 @@ void crawler::run()
 			 * @todo figure out how https works...
 			 */
 		} else if (url.contains("http://")) {
-		    QString host = url.replace("http://", "");
+		    QString host = url; host.replace("http://", "");
 			/* find the first '/' */
 			std::cout<<"Connecting to host: \""<<host.toStdString()<<"\""<<std::endl;
 			p_socket->connectToHost(host, http_port,
@@ -88,5 +86,5 @@ void crawler::run()
 				std::cout<<"Discovered: \""<<a.toStdString()<<"\""<<std::endl;
 			}
 		}
-	} m_p_thread->wait();
+	}
 }
