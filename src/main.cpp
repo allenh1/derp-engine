@@ -42,13 +42,12 @@ int main(int argc, char **argv)
 	url1.enqueue("http://netflix.com");
 	url1.enqueue("http://wiki.ros.org");
 	url1.enqueue("http://vanderbilt.edu");
-	url2.enqueue("http://www.52tapes.com");
-	url2.enqueue("http://www.junk-culture.com");
-	url2.enqueue("http://minutelabs.io");
-	url2.enqueue("http://browsehappy.com");
-
+	url1.enqueue("http://www.52tapes.com");
+	url1.enqueue("http://www.junk-culture.com");
+	url1.enqueue("http://minutelabs.io");
+	url1.enqueue("http://browsehappy.com");
+	url1.enqueue("http://www.nabble.com");
 	crawler buddy(url1, db);
-	crawler timmy(url2, db);
 	
 	if (!buddy.init()) {
 		std::cerr<<"Error: crawler failed to initialize!"<<std::endl;
