@@ -68,10 +68,14 @@ void master_node::handle_search(QTcpSocket * p_socket, QString * text) {
 	tcp_connection * client = new tcp_connection(host, p_socket);
 	QStringList words = text->split("+");
     text->replace("+", " ");
+	text->replace(" the ", "");
+	text->replace("the ","");
+	text->replace(" the","");
+	text->replace("the","");
 	
-	for(int i=0; i < words.size(); i++) {
+	for(int i=0; i < 1; i++) {
 		try {
-			if (!search(words[i])) {
+			if (!search(*text)) {
 				std::cerr<<"Authentication Error"<<std::endl;
 				_msg = new QString("ERROR: NO RESULTS FOUND\r\n");
 				return;
