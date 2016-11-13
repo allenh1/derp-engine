@@ -1,6 +1,7 @@
 #include "ParseHTML.hpp"
 
-ParseHTML::ParseHTML(const QString & _html) {
+ParseHTML::ParseHTML(const QString & _url, const QString & _html) {
+	m_url=_url;
 	m_html=_html;
 	m_content = "";
 }
@@ -36,7 +37,9 @@ bool ParseHTML::operator() () {
 			break;
 		case QUOTE:
 			if(url.size()>0) {
-				m_urls.push_back(url);
+				if(!url.contains("http://") && !url.contains("https://")) {
+					url = m_url+url;
+				} m_urls.enqueue(url);
 				url.clear();
 			} if(m_html[i] == '>') state = CLOSE;
 			break;
@@ -50,7 +53,7 @@ bool ParseHTML::operator() () {
 	parseContent();
 	
 	// returns false if no content is found
-	if(m_content.size() > 0) return true;
+	if(m_content.size() > 0 || m_urls.size() > 0) return true;
 	return false;
 }
 
