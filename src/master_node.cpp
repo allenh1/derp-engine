@@ -75,7 +75,7 @@ void master_node::handle_search(QTcpSocket * p_socket, QString * text) {
 				std::cerr<<"Authentication Error"<<std::endl;
 				_msg = new QString("ERROR: NO RESULTS FOUND\r\n");
 				return;
-			} else _msg = new QString("OK\r\n");
+			}// else _msg = new QString("OK\r\n");
 		} catch ( ... ) {
 			_msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");		
 		}
@@ -84,7 +84,7 @@ void master_node::handle_search(QTcpSocket * p_socket, QString * text) {
 			std::cerr<<"Authentication Error"<<std::endl;
 			_msg = new QString("ERROR: NO RESULTS FOUND\r\n");
 			return;
-		} else _msg = new QString("OK\r\n");
+		} //else _msg = new QString("OK\r\n");
 	} catch ( ... ) {
 		_msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");
 	} build_message(client);
