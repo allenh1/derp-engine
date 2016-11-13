@@ -53,7 +53,7 @@ bool ParseHTML::operator() () {
 				if(!url.contains("http://")) {
 					if(url[0] == '/') url = m_url+url;
 					else url = m_url+'/'+url;
-				} if(!url.contains("mailto:")) {
+				} if(!url.contains("mailto:") && !url.contains(".tar")) {
 					std::cerr<<"url: "<<url.toStdString()<<std::endl;
 					m_urls.enqueue(url);
 				} url.clear();
