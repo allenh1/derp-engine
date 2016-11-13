@@ -50,7 +50,7 @@ bool crawler::send_url_to_db(QString url, QString title, QString text)
 	    return false;
 	} QSqlQuery query(m_db);
 
-	query.prepare("INSERT INTO websites(url, title, text) VALUES(?, ?, ?)");
+	query.prepare("INSERT INTO websites(url, title, content) VALUES(?, ?, ?)");
 	query.bindValue(0, url); query.bindValue(1, title);
 	query.bindValue(2, text);
 

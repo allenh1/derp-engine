@@ -112,8 +112,8 @@ bool master_node::search(QString text) {
 	} 
 
 	QSqlQuery query(m_db);
-	QString txt = "SELECT url, text FROM websites WHERE text LIKE \"%";
-	txt += text + "%\"";
+	QString txt = "SELECT url, title, content FROM websites WHERE content LIKE \"%";	
+	txt += text + "%\" or title LIKE \"%" + text + "%\"";
 	query.prepare(txt);
 	
 	if(!query.exec()) {
@@ -184,7 +184,7 @@ void master_node::build_message(tcp_connection * p) {
 		for(int i=0; i<lines.size();i++) {
 			//std::cout<<"line "<<i<<": "<<lines[i].toStdString()<<std::endl;
 			QStringList things = lines[i].split("::");
-			if (things.size() < 2) continue;
+			if (things.size() < 3) continue;
 			*htmlDoc+=tableEntryHyperLink; *htmlDoc+=things.at(0);
 			*htmlDoc+=tableEntryEndLink; *htmlDoc+=things.at(1);
 			*htmlDoc+=tableEntryEndSummary; *htmlDoc+=things.at(2);
