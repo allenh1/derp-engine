@@ -129,7 +129,8 @@ void crawler::run()
 			continue;
 		}
 
-		if (parser.getContent().contains("404: Page")) {
+		if (parser.getContent().contains("404") ||
+			parser.getContent().contains("301")) {
 			std::cerr<<"Got 404. site: \""
 					 <<url.toStdString()<<"\""<<std::endl;
 			continue;
