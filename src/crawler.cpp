@@ -43,15 +43,15 @@ bool crawler::discovered(const QString & url)
 	} return query.size();
 }
 
-bool crawler::send_url_to_db(QString url)
+bool crawler::send_url_to_db(QString url, QString text)
 {
 	if (!m_db.open()) {
 		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
 	    return false;
 	} QSqlQuery query(m_db);
 
-	query.prepare("INSERT INTO websites(url) VALUES(?)");
-	query.bindValue(0, url);
+	query.prepare("INSERT INTO websites(url, text) VALUES(?, ?)");
+	query.bindValue(0, url); query.bindValue(1, text);
 
 	if (!query.exec()) {
 		std::cerr<<"Error: Query failed to execute!"<<std::endl;
@@ -74,20 +74,20 @@ void crawler::parse()
 		std::cerr<<"Failed to parse request!"<<std::endl;
 		std::cerr<<"Request:"<<std::endl<<std::endl;
 		std::cerr<<read.toStdString()<<std::endl;
-	    return;
+		return;
 	}
 
 	if (parser.getContent().contains("404: Page")) {
 		std::cerr<<"Got 404. site: \""
 				 <<p_downloader->get_url().toStdString()<<"\""<<std::endl;
-	    return;
+		return;
 	}
 	
     foreach (const QString & a, parser.getUrls()) {
 		if (!discovered(a)) {
 			/* if not seen, enqueue */
 			m_unexplored.enqueue(a);
-			if (!send_url_to_db(a)) {
+			if (!send_url_to_db(a, a)) {
 				std::cerr<<"DB communication failed!"<<std::endl;
 			}
 			std::cout<<"Discovered["<<m_unexplored.size() - 1
@@ -104,17 +104,52 @@ void crawler::run()
 {
 	std::cout<<"Crawling..."<<std::endl;
 	/* run loop for the crawler */
-	for (; m_continue && m_unexplored.size();) {
+	for (; m_continue && m_unexplored.size(); m_p_thread->msleep(50)) {
 		std::cout<<std::endl<<"\t*** Looped around! ***"<<std::endl;
-		/* remove the first unexplored url */
+		/* remove the first unexplored url */		
 		QString url = m_unexplored.dequeue();
+		if (discovered(url)) continue;
 		m_saving_file = true;
 		/* connect to the host */
-		FileDownloader * p_fd = new FileDownloader(QUrl(url));
+		QNetworkAccessManager manager;
+		QNetworkReply *response = manager.get(QNetworkRequest(QUrl(url)));
+		QEventLoop event;
+		connect(response,SIGNAL(finished()),&event,SLOT(quit()));
+		event.exec();
+		QString html = response->readAll(); // Source should be stored here
+		QString read; std::cerr<<std::endl<<"\t******** In parse! ********"
+							   <<std::endl<<std::endl;
+		/* construct a parser */
+		ParseHTML parser(url, html);
+		/* call the parser */
+		if (!parser()) {
+			std::cerr<<"Failed to parse request!"<<std::endl;
+			std::cerr<<"Request:"<<std::endl<<std::endl;
+			std::cerr<<read.toStdString()<<std::endl;
+			continue;
+		}
 
-		connect(p_fd, &FileDownloader::downloaded, this, &crawler::parse,
-				Qt::DirectConnection);
+		if (parser.getContent().contains("404: Page")) {
+			std::cerr<<"Got 404. site: \""
+					 <<url.toStdString()<<"\""<<std::endl;
+			continue;
+		}
 
+		if (!send_url_to_db(url, parser.getContent().left(500))) {
+			std::cerr<<"DB communication failed!"<<std::endl;
+		}
+		
+		foreach (const QString & a, parser.getUrls()) {
+			if (!discovered(a)) {
+				/* if not seen, enqueue */
+				m_unexplored.enqueue(a);
+				std::cout<<"Discovered["<<m_unexplored.size() - 1
+						 <<"]: \""<<a.toStdString()<<"\""<<std::endl;
+			}
+		}
+
+		std::cerr<<std::endl<<"\t******** Leaving Parse! ********"
+				 <<std::endl<<std::endl;
 		//for (; m_saving_file; m_p_thread->msleep(100));
 	} std::cerr<<"Somehow we hit a wall? What?"<<std::endl;
 }
