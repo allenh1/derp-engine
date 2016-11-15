@@ -1,19 +1,33 @@
 <!DOCTYPE html>
 <html>
-<body>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<h1><center>Derp-Engine</center></h1>
-<form action="search" method="get"><center>
-<input type="text" name="word"><input type="submit" value="search">
-</center></form>
-</body>
+  <header>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="https://code.getmdl.io/1.2.1/material.blue-pink.min.css" />
+	<script defer src="https://code.getmdl.io/1.2.1/material.min.js"></script>
+  </header>
+  <body>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<h1><center>Derp-Engine</center></h1>
+	<form action="search" method="get"><center>
+		<div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
+		  <label class="mdl-button mdl-js-button mdl-button--icon" for="derp">
+			<i class="material-icons">search</i>
+		  </label>
+		  <div class="mdl-textfield__expandable-holder">
+			<input class="mdl-textfield__input" type="text" name="word" id="derp">
+		  </div>
+		</div>
+		<input class="mdl-button mdl-js-button" type="submit" value="search">
+	  </center>
+	</form>
+  </body>
 </html>
