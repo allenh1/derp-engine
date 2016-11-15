@@ -4,6 +4,7 @@
 #include <QSqlRecord>
 #include <QSqlQuery>
 #include <QtCore>
+#include <map>
 #include "file_downloader.hpp"
 #include "ParseHTML.hpp"
 
@@ -33,6 +34,7 @@ private:
 	QThread * m_p_thread;
     volatile bool m_continue = true;
 	volatile bool m_saving_file = true;
+	std::map<QString, QString> m_local_url;
 	QQueue<QString> m_unexplored;
 	QSqlDatabase m_db;
 };

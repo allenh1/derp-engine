@@ -28,6 +28,10 @@ bool crawler::init()
 
 bool crawler::discovered(const QString & url)
 {
+	/* check for the url locally, first. */
+	auto && x = m_local_url.find(url);
+	if (x != m_local_url.end()) return true;
+	
 	if (!m_db.open()) {
 		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
 		return true;
@@ -110,7 +114,7 @@ void crawler::run()
 		/* remove the first unexplored url */		
 		QString url = m_unexplored.dequeue();
 		if (discovered(url)) continue;
-		m_saving_file = true;
+		m_saving_file = true; m_local_url[url] = url;
 		/* connect to the host */
 		QNetworkAccessManager manager;
 		QNetworkReply *response = manager.get(QNetworkRequest(QUrl(url)));
@@ -143,12 +147,10 @@ void crawler::run()
 		}
 		
 		foreach (const QString & a, parser.getUrls()) {
-			if (!discovered(a)) {
 				/* if not seen, enqueue */
 				m_unexplored.enqueue(a);
 				std::cout<<"Discovered["<<m_unexplored.size() - 1
 						 <<"]: \""<<a.toStdString()<<"\""<<std::endl;
-			}
 		}
 
 		std::cerr<<std::endl<<"\t******** Leaving Parse! ********"
