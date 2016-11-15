@@ -89,7 +89,7 @@ QString ParseHTML::parseTag(QString _tag) {
 	int index = _tag.indexOf("href=");
 	if(index != -1) {
 		QString temp = "";
-		for(int i=index+5; _tag[i]!='"';i++) temp+=_tag[i];
+		for(int i=index+6; _tag[i]!='"';i++) temp+=_tag[i];
 		parseUrl(temp);
 	}
 	
