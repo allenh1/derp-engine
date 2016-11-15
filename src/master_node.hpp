@@ -66,9 +66,13 @@ private:
 	tcp_thread * m_p_tcp_thread;
 
 	/* code that writes an html page to browser a directory  */
-	const char * htmlBegin = "<!DOCTYPE html><head><title>";
-	const char * htmlEndTitle = "</title></head><body><h1>";
-	const char * htmlEndHead = "</h1><table><tbody>";
+	const char * htmlBegin = "<!DOCTYPE html><header>"
+"<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/icon?family=Material+Icons\">"
+"<link rel=\"stylesheet\" href=\"https://code.getmdl.io/1.2.1/material.blue-pink.min.css\" />"
+"<script defer src=\"https://code.getmdl.io/1.2.1/material.min.js\"></script>"
+"  </header><head><title>";
+	const char * htmlEndTitle = "</title></head><body><h3>";
+	const char * htmlEndHead = "</h3><table><tbody>";
 	const char * htmlLine = "<tr><th colspan=\"5\"><hr></th></tr>";
 	const char * tableEntryHyperLink = "<tr><td><details open><summary><a  href=\"";
 	const char * tableEntryEndLink = "\">";
