@@ -15,6 +15,9 @@ private:
 	QQueue<QString> m_urls;
 	QMap<QString, int> m_keywords;
 
+	bool isUrl(QString _url);
+	QString parseTag(QString _tag);
+	void parseUrl(QString _url);
 	void parseContent();
 public:
 	ParseHTML(const QString & _url, const QString & _html);
