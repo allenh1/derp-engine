@@ -5,78 +5,40 @@ ParseHTML::ParseHTML(const QString & _url, const QString & _html) {
 }
 
 bool ParseHTML::operator() () {
-	enum {START, OPEN, ST, STYLE, TITLE, TI,
-		  HREF, URL, QUOTE, CLOSE} state;
+	enum {START, OPEN, CLOSE, TITLE, CONTENT} state;
 
-	state = START; QString url = ""; QString href = "";
-	QString style = "";
-	//std::cerr<<std::endl<<"html to parse: "<<std::endl;
-	//std::cerr<<m_html.toStdString()<<std::endl;
+	state = START; QString tag="";
 	
 	for(int i=0; i<m_html.size(); i++) {
 		switch(state) {
 		case START:
-			if(m_html[i] == '<') state=OPEN;
+			if(m_html[i]=='<') state=OPEN;
 			break;
 		case OPEN:
-			if(m_html[i] == 'h') {
-				href+=m_html[i]; state=HREF;
-			} else if(m_html[i]=='>') state=CLOSE;
-			else if(m_html[i]=='s') {
-				style+=m_html[i]; state=ST;
-			} else if(m_html[i]=='t') {
-				style+=m_html[i]; state=TI;
-			} break;
-		case HREF:
-			if(m_html[i] == '"' && href.size() == 5) {
-				href.clear(); state=URL;
-			} else if(href.size() > 5) {
-				href.clear(); state=OPEN;
-			} else if(m_html[i]=='>') {
-				href.clear(); state=CLOSE;
-			} else href+=m_html[i];
-			break;
-		case TI:
-			if(m_html[i]=='>' && style.contains("title")) {
-				state=TITLE; style.clear();
-			} else if(m_html[i]=='>') {
-				state=START; style.clear();
-			} else style+=m_html[i];
-			break;
-		case TITLE:
-			if(m_html[i]=='<') {m_title+=style; state=OPEN; style.clear();}
-			else style+=m_html[i];
-			break;
-		case ST:
-			if(m_html[i]=='>' && style.contains("style")) {
-				state=STYLE; style.clear();
-			} else if(m_html[i]=='>') {
-				state=START; style.clear();
-			} else style+=m_html[i];
-			break;
-		case STYLE:
-			if(m_html[i]=='>') state=START;
-			break;
-		case URL:
-			if(m_html[i] == '"') state=QUOTE;
-			else url+=m_html[i];
-			break;
-		case QUOTE:
-			if(url.size()>0) {
-				if(!url.contains("http://")&&!url.contains("https://")) {
-					if(url[0]=='/' &&
-					   url.lastIndexOf('/')==url.size()-1) url.remove(0,1);
-					if(url[0]=='/' ||
-					   url.lastIndexOf('/')==url.size()-1) url = m_url+url;
-					else url = m_url+'/'+url;
-				} if(!url.contains("mailto:") && !url.contains(".tar")) {
-					std::cerr<<"url: "<<url.toStdString()<<std::endl;
-					m_urls.enqueue(url);
-				} url.clear();
-			} if(m_html[i] == '>') state = CLOSE;
+			if(m_html[i]=='>') {
+				tag=parseTag(tag);
+				state=CLOSE;
+			} else tag+=m_html[i];
 			break;
 		case CLOSE:
-			if(m_html[i] == '<') state = OPEN;
+			if(m_html[i]=='<') {
+				state=OPEN;
+				tag.clear();
+			} else if(tag.contains("content")) {
+				state=CONTENT;
+				m_content+=m_html[i];
+				tag.clear();
+			} else if(tag.contains("title")) {
+				state=TITLE;
+				m_title+=m_html[i];
+				tag.clear();
+			} break;
+		case TITLE:
+			if(m_html[i]=='<') state=OPEN;
+			else m_title+=m_html[i];
+			break;
+		case CONTENT:
+			if(m_html[i]=='<') state=OPEN;
 			else m_content+=m_html[i];
 			break;
 		} 
@@ -96,15 +58,72 @@ const QString& ParseHTML::getContent() {return m_content;}
 const QQueue<QString>& ParseHTML::getUrls() {return m_urls;}
 const QMap<QString, int> & ParseHTML::getKeywords() {return m_keywords;}
 
+bool ParseHTML::isUrl(QString _url) {
+	if (_url.contains("mailto:") || _url.contains(".a") || _url.contains(".cpio")
+		|| _url.contains(".shar") || _url.contains(".LBR")
+		|| _url.contains(".iso") || _url.contains(".lbr") || _url.contains(".mar")
+		|| _url.contains(".bz2") || _url.contains(".F") || _url.contains(".gz")
+		|| _url.contains(".lz") || _url.contains(".rz") || _url.contains(".sfark")
+		|| _url.contains(".sz") || _url.contains(".?") || _url.contains(".x")
+		|| _url.contains(".z") || _url.contains(".Z") || _url.contains(".t")
+		|| _url.contains(".u") || _url.contains(".w")) {
+		return false;
+	} return true;
+}
+
+void ParseHTML::parseUrl(QString _url) {
+	// call isUrl then parse if it is a url
+	if(!isUrl(_url)) return; 
+	if(!_url.contains("http://")&&!_url.contains("https://")) {
+		if(_url[0]=='/' && m_url[m_url.size()-1]=='/') {
+			_url.remove(0,1);
+		}
+		if((_url[0]=='/' && m_url[m_url.size()-1]!='/')
+		   ||(_url[0]!='/' && m_url[m_url.size()-1]=='/')) _url=m_url+_url;
+		else _url = m_url+'/'+_url;
+	} m_urls.enqueue(_url);
+}
+
+QString ParseHTML::parseTag(QString _tag) {
+	// call parseUrl() if href found
+	int index = _tag.indexOf("href=");
+	if(index != -1) {
+		QString temp = "";
+		for(int i=index+5; _tag[i]!='"';i++) temp+=_tag[i];
+		parseUrl(temp);
+	}
+	
+	// return "title" if title follows tag
+	// if not title tag found return "title"
+	// on first header found
+	QString res;
+	if(_tag.contains("title")) {
+		res="title";
+		return res;
+	}
+	if(!m_title.size()) {
+		if(_tag.contains("h1") || _tag.contains("h2") || _tag.contains("h3")
+		   || _tag.contains("h4") || _tag.contains("h5") || _tag.contains("h6")) {
+			res = "title";
+			return res;
+		}
+	}
+	// return "content" if content follows tag
+	if(_tag.indexOf("link")!=0 && _tag.indexOf("style")!=0
+	   && _tag.indexOf("script")!=0) {
+		res="content";
+		return res;
+	} res="skip";
+	return res;
+}
+
 void ParseHTML::parseContent() {
 	if(m_content.size()==0) return;
 
-    m_content.replace('\r', ""); m_content.replace('\n', ' ');
-	m_content.replace('\t', ""); m_content.replace('\b', "");
-	m_content.replace('\f', ""); m_content.replace('\a', "");
-	m_content.replace('\v', ""); m_content.replace('{', "");
-	m_content.replace('<', ""); m_content.replace('>', "");
-	m_content.replace('}', "");
+    m_content.replace('\r', " "); m_content.replace('\n', " ");
+	m_content.replace('\t', " "); m_content.replace('\b', " ");
+	m_content.replace('\f', " "); m_content.replace('\a', " ");
+	m_content.replace('\v', " "); 
 
 	QString word = "";
 	enum {WHITE, LETTER} state; state=LETTER;
@@ -128,5 +147,5 @@ void ParseHTML::parseContent() {
 				i--;
 			} break;
 		}
-	} 
+	} m_content.resize(m_content.size());
 }
