@@ -55,10 +55,10 @@ bool ParseHTML::operator() () {
 			else (*m_content)+=(*m_html)[i];
 			break;
 		} 
-	} std::cerr<<"end"<<std::endl;
+	} std::cerr<<"end parsing"<<std::endl;
 
 	parseContent();
-	std::cerr<<"content: "<<m_content->toStdString()<<std::endl;
+	std::cerr<<"content found: "<<m_content->toStdString()<<std::endl;
 	
 	// returns false if no content is found
 	if(m_content->size()==0 && m_urls.size()==0) return false;
