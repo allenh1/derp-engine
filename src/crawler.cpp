@@ -126,6 +126,8 @@ void crawler::run()
 				/* check for a self-link */
 			    QStringList temp = a.split('/'); temp.removeDuplicates();
 				QString toPush = prefix + temp[0];
+				/* depth limit of 30 */
+				if (temp.size() > 30) continue;
 				for (int x = 1; x < temp.size(); toPush += "/" + temp[x++]);
 				
 				m_unexplored.push(toPush);
