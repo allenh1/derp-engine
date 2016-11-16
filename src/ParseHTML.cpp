@@ -88,7 +88,8 @@ bool ParseHTML::isUrl(QString _url) {
 
 void ParseHTML::parseUrl(QString _url) {
 	// call isUrl then parse if it is a url
-	if(!isUrl(_url)) return; 
+	if(!isUrl(_url)) return;
+	if(m_url.contains(_url)) return;
 	if(!_url.contains("http://")&&!_url.contains("https://")) {
 		if(_url[0]=='/' && m_url[m_url.size()-1]=='/') {
 			_url.remove(0,1);
@@ -113,11 +114,11 @@ QString ParseHTML::parseTag(QString _tag) {
 	// if not title tag found return "title"
 	// on first header found
 	QString res;
-	if(_tag.contains("title")) {
+	if(_tag.contains("title") && m_title.size()==0) {
 		std::cerr<<"found title: "<<_tag.toStdString()<<std::endl;
 		res="title";
 		return res;
-	} if(!m_title.size()) {
+	} if(m_title.size()==0) {
 		if(_tag.contains("h1") || _tag.contains("h2") || _tag.contains("h3")
 		   || _tag.contains("h4") || _tag.contains("h5") || _tag.contains("h6")) {
 			std::cerr<<"found title: "<<_tag.toStdString()<<std::endl;
