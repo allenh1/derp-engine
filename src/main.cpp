@@ -37,8 +37,8 @@ int main(int argc, char **argv)
     QCoreApplication app(argc, argv);
 	if (argc == 3 && !strcmp(argv[1], "--crawl")) {
 		
-		QQueue<QString> urls; QSqlDatabase db = setup_db();
-		urls.enqueue(QString(argv[2]));
+		QStack<QString> urls; QSqlDatabase db = setup_db();
+		urls.push(QString(argv[2]));
 		crawler buddy(urls, db); buddy.init();
 		return app.exec();
 	} else {

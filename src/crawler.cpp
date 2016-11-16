@@ -1,6 +1,6 @@
 #include "crawler.hpp"
 
-crawler::crawler(const QQueue<QString> & _unexplored,
+crawler::crawler(const QStack<QString> & _unexplored,
 				 const QSqlDatabase & _db,				 
 				 QObject * _p_parent)
 	: QObject(_p_parent),	  
@@ -91,7 +91,7 @@ void crawler::parse()
     foreach (const QString & a, parser.getUrls()) {
 		if (!discovered(a)) {
 			/* if not seen, enqueue */
-			m_unexplored.enqueue(a);
+			m_unexplored.push(a);
 			if (!send_url_to_db(a, a, a)) {
 				std::cerr<<"DB communication failed!"<<std::endl;
 			}
@@ -112,7 +112,7 @@ void crawler::run()
 	for (; m_continue && m_unexplored.size(); m_p_thread->msleep(50)) {
 		std::cout<<std::endl<<"\t*** Looped around! ***"<<std::endl;
 		/* remove the first unexplored url */		
-		QString url = m_unexplored.dequeue();
+		QString url = m_unexplored.pop();
 		if (discovered(url)) continue;
 		m_saving_file = true; m_local_url[url] = url;
 		/* connect to the host */
@@ -147,10 +147,13 @@ void crawler::run()
 		}
 		
 		foreach (const QString & a, parser.getUrls()) {
-				/* if not seen, enqueue */
-				m_unexplored.enqueue(a);
+			/* if not seen, enqueue */			
+			if (m_local_url.find(a) == m_local_url.end() &&
+				a[a.size() - 1] != '#') {
+				m_unexplored.push(a);
 				std::cout<<"Discovered["<<m_unexplored.size() - 1
 						 <<"]: \""<<a.toStdString()<<"\""<<std::endl;
+			}
 		}
 
 		std::cerr<<std::endl<<"\t******** Leaving Parse! ********"

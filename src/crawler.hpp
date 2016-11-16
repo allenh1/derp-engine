@@ -11,7 +11,7 @@
 class crawler : public QObject
 {
 public:
-	explicit crawler(const QQueue<QString> & _unexplored,
+	explicit crawler(const QStack<QString> & _unexplored,
 					 const QSqlDatabase & _db,
 					 QObject * _p_parent = NULL);
 	virtual ~crawler();
@@ -20,7 +20,7 @@ public:
 	bool discovered(const QString & url);
 	const volatile bool & is_running() { return m_continue; }
 	const QThread * get_thread() { return m_p_thread; }
-	const QQueue<QString> & get_unexplored() { return m_unexplored; }
+	const QStack<QString> & get_unexplored() { return m_unexplored; }
 
 	Q_SLOT void run();
 	Q_SLOT void stop();
@@ -35,7 +35,7 @@ private:
     volatile bool m_continue = true;
 	volatile bool m_saving_file = true;
 	std::map<QString, QString> m_local_url;
-	QQueue<QString> m_unexplored;
+	QStack<QString> m_unexplored;
 	QSqlDatabase m_db;
 };
 #endif
