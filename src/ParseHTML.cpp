@@ -106,7 +106,11 @@ QString ParseHTML::parseTag(QString _tag) {
 	int index = _tag.indexOf("href=");
 	if(index != -1) {
 		QString temp = "";
-		for(int i=index+6; _tag[i]!='"'&&_tag[i]!='\'';i++) temp+=_tag[i];
+		for(int i=index+6; _tag[i]!='"'
+				&&_tag[i]!='\''
+				&&(i-(index+6)<100);i++) {
+			temp+=_tag[i];
+		}
 		parseUrl(temp);
 	}
 	
@@ -114,7 +118,8 @@ QString ParseHTML::parseTag(QString _tag) {
 	// if not title tag found return "title"
 	// on first header found
 	QString res;
-	if(_tag.contains("title") && m_title.size()==0) {
+	if(_tag.contains("title") && m_title.size()==0
+	   &&!_tag.contains("doctitle")) {
 		std::cerr<<"found title: "<<_tag.toStdString()<<std::endl;
 		res="title";
 		return res;
