@@ -174,7 +174,8 @@ void master_node::build_message(tcp_connection * p) {
 			if (things.size() < 3) continue;
 			*htmlDoc+=tableEntryHyperLink; *htmlDoc+=things.at(0);
 			*htmlDoc+=tableEntryEndLink;
-			if(things.at(1).size()>1) *htmlDoc+=things.at(1);
+			things.replace(1, things.at(1).trimmed());
+			if(things.at(1).size()>0) *htmlDoc+=things.at(1);
 			else *htmlDoc+="Search Result";
 			*htmlDoc+=tableEntryEndSummary; *htmlDoc+=things.at(2);
 			*htmlDoc+=tableEntryEndText;
