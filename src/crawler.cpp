@@ -111,13 +111,22 @@ void crawler::run()
 			std::cerr<<"DB communication failed!"<<std::endl;
 		}
 		
-		foreach (const QString & a, parser.getUrls()) {
+	    for (int x = 0; x < parser.getUrls().size(); ++x) {
+			QString a = parser.getUrls()[x];
 			/* if not seen, enqueue */			
-			if (m_local_url.find(a) == m_local_url.end() &&
-				a[a.size() - 1] != '#') {
-				m_unexplored.push(a);
+			if (m_local_url.find(a) == m_local_url.end()) {
+				/* temporarily remove the http:// tag */
+				QString prefix;
+				if (a.contains("https://")) prefix = "https://", a.replace("https://", "");
+				else if (a.contains("http://")) prefix = "http://", a.replace("http://", "");
+				/* check for a self-link */
+			    QStringList temp = a.split('/'); temp.removeDuplicates();
+				QString toPush = prefix + temp[0];
+				for (int x = 1; x < temp.size(); toPush += "/" + temp[x++]);
+				
+				m_unexplored.push(toPush);
 				std::cout<<"Discovered["<<m_unexplored.size() - 1
-						 <<"]: \""<<a.toStdString()<<"\""<<std::endl;
+						 <<"]: \""<<toPush.toStdString()<<"\""<<std::endl;
 			}
 		}
 
