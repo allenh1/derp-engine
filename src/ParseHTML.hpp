@@ -22,6 +22,7 @@ private:
 	void parseContent();
 public:
 	ParseHTML(const QString & _url, QString * _html);
+	~ParseHTML();
 	bool operator() ();
 
 	const QMap<QString, int>& getKeywords();

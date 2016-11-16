@@ -73,7 +73,7 @@ void crawler::parse()
 						   <<std::endl<<std::endl;
 	/* construct a parser */
 	ParseHTML parser(p_downloader->get_url(),
-					 read = new QString(p_downloader->downloadedData()));
+					 read = new QString(*(p_downloader->downloadedData())));
 	/* call the parser */
 	if (!parser()) {
 		std::cerr<<"Failed to parse request!"<<std::endl;
@@ -103,6 +103,7 @@ void crawler::parse()
 	std::cerr<<std::endl<<"\t******** Leaving Parse! ********"
 			 <<std::endl<<std::endl;
 	m_saving_file = false;
+	delete read;
 }
 
 void crawler::run()
@@ -127,6 +128,7 @@ void crawler::run()
 							   <<std::endl<<std::endl;
 		/* construct a parser */
 		ParseHTML parser(url, html);
+		delete html;
 		/* call the parser */
 		if (!parser()) {
 			std::cerr<<"Failed to parse request!"<<std::endl;

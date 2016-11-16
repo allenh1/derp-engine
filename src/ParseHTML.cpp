@@ -7,6 +7,11 @@ ParseHTML::ParseHTML(const QString & _url, QString * _html) {
 	m_title="";
 }
 
+ParseHTML::~ParseHTML() {
+	delete m_html;
+	delete m_content;
+}
+
 bool ParseHTML::operator() () {
 	enum {START, OPEN, CLOSE, TITLE, CONTENT} state;
 

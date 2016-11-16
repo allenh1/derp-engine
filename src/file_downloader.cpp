@@ -16,12 +16,12 @@ FileDownloader::FileDownloader(QUrl _url, QObject *parent) :
 FileDownloader::~FileDownloader() { }
  
 void FileDownloader::fileDownloaded(QNetworkReply* pReply) {
-	m_DownloadedData = pReply->readAll();
+	m_DownloadedData = new QByteArray(pReply->readAll());
 	pReply->deleteLater();
 	Q_EMIT(downloaded());
 }
  
-QByteArray FileDownloader::downloadedData() const {
+QByteArray* FileDownloader::downloadedData() const {
 	return m_DownloadedData;
 }
 
