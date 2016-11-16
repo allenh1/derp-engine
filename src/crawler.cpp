@@ -116,7 +116,10 @@ void crawler::run()
 			/* if not seen, enqueue */			
 			if (m_local_url.find(a) == m_local_url.end()) {
 				if (a.contains("facebook.com")) {
-					std::cout<<"URL was too bland (ty, facebook)"<<std::endl;
+					std::cout<<"URL was too bland (ty, Facebook)"<<std::endl;
+					continue;
+				} else if (a.contains("google.com")) {
+					std::cout<<"URL was too lame (ty, Google)"<<std::endl;
 					continue;
 				}
 				/* temporarily remove the http:// tag */
