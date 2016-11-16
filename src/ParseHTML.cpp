@@ -1,8 +1,8 @@
 #include "ParseHTML.hpp"
 
-ParseHTML::ParseHTML(const QString & _url, const QString & _html) {
+ParseHTML::ParseHTML(const QString & _url, QString * _html) {
 	m_url=_url;
-	m_html=new QString(""); (*m_html)+=_html;
+	m_html=new QString(*_html);
 	m_content=new QString("");
 	m_title="";
 }

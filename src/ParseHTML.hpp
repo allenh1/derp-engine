@@ -21,7 +21,7 @@ private:
 	void parseUrl(QString _url);
 	void parseContent();
 public:
-	ParseHTML(const QString & _url, const QString & _html);
+	ParseHTML(const QString & _url, QString * _html);
 	bool operator() ();
 
 	const QMap<QString, int>& getKeywords();

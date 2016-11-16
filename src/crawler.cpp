@@ -69,16 +69,16 @@ void crawler::parse()
 {
 	/* get the sender */
 	FileDownloader * p_downloader = qobject_cast<FileDownloader*>(sender());
-	QString read; std::cerr<<std::endl<<"\t******** In parse! ********"
+	QString * read; std::cerr<<std::endl<<"\t******** In parse! ********"
 						   <<std::endl<<std::endl;
 	/* construct a parser */
 	ParseHTML parser(p_downloader->get_url(),
-					 read = QString(p_downloader->downloadedData()));
+					 read = new QString(p_downloader->downloadedData()));
 	/* call the parser */
 	if (!parser()) {
 		std::cerr<<"Failed to parse request!"<<std::endl;
 		std::cerr<<"Request:"<<std::endl<<std::endl;
-		std::cerr<<read.toStdString()<<std::endl;
+		std::cerr<<read->toStdString()<<std::endl;
 		return;
 	}
 
@@ -121,7 +121,8 @@ void crawler::run()
 		QEventLoop event;
 		connect(response,SIGNAL(finished()),&event,SLOT(quit()));
 		event.exec();
-		QString html = response->readAll(); // Source should be stored here
+		// Source should be stored here
+		QString * html = new QString(response->readAll()); 
 		QString read; std::cerr<<std::endl<<"\t******** In parse! ********"
 							   <<std::endl<<std::endl;
 		/* construct a parser */
