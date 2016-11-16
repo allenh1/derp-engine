@@ -17,10 +17,12 @@ bool ParseHTML::operator() () {
 	enum {START, OPEN, CLOSE, TITLE, CONTENT} state;
 
 	state = START; QString tag="";
-	std::cout<<"starts parse operation"<<std::endl;
+	
 	int max;
 	if(m_html->size() > 2<<21) max=2<<21;
 	else max=m_html->size();
+
+	std::cout<<"starts parse operation"<<std::endl;
 	for(int i=0; i<max; i++) {
 		//std::cerr<<m_html->toStdString()[i];
 		switch(state) {
@@ -58,7 +60,7 @@ bool ParseHTML::operator() () {
 	} std::cerr<<"end parsing"<<std::endl;
 
 	parseContent();
-	std::cerr<<"content found: "<<m_content->toStdString()<<std::endl;
+	//std::cerr<<"content found: "<<m_content->toStdString()<<std::endl;
 	
 	// returns false if no content is found
 	if(m_content->size()==0 && m_urls.size()==0) return false;
@@ -99,10 +101,11 @@ void ParseHTML::parseUrl(QString _url) {
 
 QString ParseHTML::parseTag(QString _tag) {
 	// call parseUrl() if href found
+	//std::cerr<<"processing tag"<<std::endl;
 	int index = _tag.indexOf("href=");
 	if(index != -1) {
 		QString temp = "";
-		for(int i=index+6; _tag[i]!='"';i++) temp+=_tag[i];
+		for(int i=index+6; _tag[i]!='"'&&_tag[i]!='\'';i++) temp+=_tag[i];
 		parseUrl(temp);
 	}
 	
@@ -111,12 +114,13 @@ QString ParseHTML::parseTag(QString _tag) {
 	// on first header found
 	QString res;
 	if(_tag.contains("title")) {
+		std::cerr<<"found title: "<<_tag.toStdString()<<std::endl;
 		res="title";
 		return res;
-	}
-	if(!m_title.size()) {
+	} if(!m_title.size()) {
 		if(_tag.contains("h1") || _tag.contains("h2") || _tag.contains("h3")
 		   || _tag.contains("h4") || _tag.contains("h5") || _tag.contains("h6")) {
+			std::cerr<<"found title: "<<_tag.toStdString()<<std::endl;
 			res = "title";
 			return res;
 		}
