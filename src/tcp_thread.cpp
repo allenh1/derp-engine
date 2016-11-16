@@ -91,12 +91,17 @@ void tcp_thread::readFromClient()
 	text += temp.replace("\r\n", "");
 
 	if (text.contains("search?word=")) {
-		std::cout<<"search requested"<<std::endl;
+		std::cout<<"search requested: "<<text.toStdString()<<std::endl;
 		text.replace("GET /search?word=","");
 		text.replace(" HTTP/1.1", "");
 		text.replace(" HTTP/1.0", "");
-		QString * temp = new QString(text);
-		Q_EMIT(got_search(pClientSocket, temp));
+		text=text.trimmed();
+		if(text.size()==0) {
+			Q_EMIT(got_home_page(pClientSocket));
+		} else {
+			QString * temp = new QString(text);
+			Q_EMIT(got_search(pClientSocket, temp));
+		}
 	} else {
 		std::cout<<"home page requested"<<std::endl;
 		Q_EMIT(got_home_page(pClientSocket));

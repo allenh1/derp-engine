@@ -64,26 +64,28 @@ bool master_node::init()
 
 
 void master_node::handle_search(QTcpSocket * p_socket, QString * text) {
+	text->replace("+", " ");
+	text->replace(QRegExp("?[ ]the?[ ]"), "");
+	*text = text->trimmed();
+	if(text->size()==0) {
+	    handle_home_page(p_socket);
+		return;
+	}
 	QString host = p_socket->peerName();
 	tcp_connection * client = new tcp_connection(host, p_socket);
-	QStringList words = text->split("+");
-    text->replace("+", " ");
-	text->replace(" the ", "");
-	text->replace("the ","");
-	text->replace(" the","");
-	text->replace("the","");
+	//QStringList words = text->split("+");
+    
 	
-	for(int i=0; i < 1; i++) {
-		try {
-			if (!search(*text)) {
-				std::cerr<<"Authentication Error"<<std::endl;
-				_msg = new QString("ERROR: NO RESULTS FOUND\r\n");
-				return;
-			}// else _msg = new QString("OK\r\n");
-		} catch ( ... ) {
-			_msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");		
-		}
-	} try {
+	try {
+		if (!search(*text)) {
+			std::cerr<<"Authentication Error"<<std::endl;
+			_msg = new QString("ERROR: NO RESULTS FOUND\r\n");
+			return;
+		}// else _msg = new QString("OK\r\n");
+	} catch ( ... ) {
+		_msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");		
+	}
+	try {
 		if(!search(*text)) {
 			std::cerr<<"Authentication Error"<<std::endl;
 			_msg = new QString("ERROR: NO RESULTS FOUND\r\n");
@@ -91,7 +93,8 @@ void master_node::handle_search(QTcpSocket * p_socket, QString * text) {
 		} //else _msg = new QString("OK\r\n");
 	} catch ( ... ) {
 		_msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");
-	} build_message(client);
+		build_message(client);
+	}
 }
 
 void master_node::handle_home_page(QTcpSocket * p_socket) {
@@ -105,7 +108,7 @@ void master_node::handle_home_page(QTcpSocket * p_socket) {
 
 bool master_node::search(QString text) {
 	std::cerr<<"search function called on \""
-			 <<text.toStdString()<<std::endl;
+			 <<text.toStdString()<<"\""<<std::endl;
 	if(!m_db.open()) {
 		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
 		return false;
