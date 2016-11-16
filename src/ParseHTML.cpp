@@ -88,7 +88,8 @@ bool ParseHTML::isUrl(QString _url) {
 
 void ParseHTML::parseUrl(QString _url) {
 	// call isUrl then parse if it is a url
-	if(!isUrl(_url)) return; 
+	if(!isUrl(_url)) return;
+	if(m_url.contains(_url)) return;
 	if(!_url.contains("http://")&&!_url.contains("https://")) {
 		if(_url[0]=='/' && m_url[m_url.size()-1]=='/') {
 			_url.remove(0,1);
