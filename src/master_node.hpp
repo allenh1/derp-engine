@@ -75,7 +75,7 @@ private:
 	const char * htmlEndHead = "</h3><table><tbody>";
 	const char * htmlLine = "<tr><th colspan=\"5\"><hr></th></tr>";
 	const char * tableEntryHyperLink = "<tr><td><details open><summary><a  href=\"";
-	const char * tableEntryEndLink = "\">";
+	const char * tableEntryEndLink = "\" target=\"_blank\">";
 	const char * tableEntryEndSummary = "</a></summary>";
 	const char * tableEntryEndText = "</td></tr>";
 	const char * htmlEnd = "</tbody></table></body></html>";
