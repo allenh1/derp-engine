@@ -64,37 +64,18 @@ bool master_node::init()
 
 
 void master_node::handle_search(QTcpSocket * p_socket, QString * text) {
-	text->replace("+", " ");
-	text->replace(QRegExp("?[ ]the?[ ]"), "");
-	*text = text->trimmed();
-	if(text->size()==0) {
-	    handle_home_page(p_socket);
-		return;
-	}
 	QString host = p_socket->peerName();
 	tcp_connection * client = new tcp_connection(host, p_socket);
 	//QStringList words = text->split("+");
-    
 	
 	try {
 		if (!search(*text)) {
-			std::cerr<<"Authentication Error"<<std::endl;
+			std::cerr<<"No results found!"<<std::endl;
 			_msg = new QString("ERROR: NO RESULTS FOUND\r\n");
-			return;
 		}// else _msg = new QString("OK\r\n");
 	} catch ( ... ) {
 		_msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");		
-	}
-	try {
-		if(!search(*text)) {
-			std::cerr<<"Authentication Error"<<std::endl;
-			_msg = new QString("ERROR: NO RESULTS FOUND\r\n");
-			return;
-		} //else _msg = new QString("OK\r\n");
-	} catch ( ... ) {
-		_msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");
-		build_message(client);
-	}
+	} build_message(client);
 }
 
 void master_node::handle_home_page(QTcpSocket * p_socket) {
@@ -126,7 +107,7 @@ bool master_node::search(QString text) {
 		return false;
 	} else if (!query.size()) {
 		*_msg += "\n";
-		return true;
+		return false;
 	}
 
 	for (; query.next();) {
@@ -182,8 +163,10 @@ void master_node::build_message(tcp_connection * p) {
 		+ "Derp-Engine Results:" + htmlEndHead + htmlLine;
 
 	std::cout<<"msg: "<<_msg->toStdString()<<std::endl;
-	
-	if(_msg->size() > 1) {
+
+	if(_msg->contains("ERROR")) {
+		*htmlDoc+=htmlEnd; collect+=*htmlDoc;
+	} else if(_msg->size() > 1) {
 		QStringList lines = _msg->split(";;;");
 		for(int i=0; i<lines.size();i++) {
 			//std::cout<<"line "<<i<<": "<<lines[i].toStdString()<<std::endl;
@@ -195,7 +178,7 @@ void master_node::build_message(tcp_connection * p) {
 			*htmlDoc+=tableEntryEndText;
 		} *htmlDoc+=htmlEnd; collect+=*htmlDoc;
 	} else collect+=_to_browser->toStdString().c_str();
+	_to_browser->clear(); _msg->clear();
 	QString * p_msg = new QString(collect);
 	Q_EMIT(send_html(p, p_msg));
-	_to_browser->clear(); _msg->clear();
 }

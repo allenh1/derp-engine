@@ -95,7 +95,10 @@ void tcp_thread::readFromClient()
 		text.replace("GET /search?word=","");
 		text.replace(" HTTP/1.1", "");
 		text.replace(" HTTP/1.0", "");
+		text.replace(QRegExp("the"),"");
+		text.replace("+"," ");
 		text=text.trimmed();
+		std::cout<<"after trim: \""<<text.toStdString()<<"\""<<std::endl;
 		if(text.size()==0) {
 			Q_EMIT(got_home_page(pClientSocket));
 		} else {
