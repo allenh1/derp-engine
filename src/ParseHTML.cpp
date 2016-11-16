@@ -168,5 +168,8 @@ void ParseHTML::parseContent() {
 				i--;
 			} break;
 		}
-	} m_content->resize(m_content->size());
+	} *m_content=m_content->trimmed();
+	m_content->resize(m_content->size());
+	m_title=m_title.trimmed();
+	m_title.resize(m_title.size());
 }
