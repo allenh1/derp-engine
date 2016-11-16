@@ -43,6 +43,7 @@ bool crawler::discovered(const QString & url)
 	if (!query.exec()) {
 		std::cerr<<"Error: Query failed to execute!"<<std::endl;
 		std::cerr<<"Query: \""<<query.lastQuery().toStdString()<<"\""<<std::endl;
+		m_local_url[url] = url;
 		return true;
 	} return query.size();
 }
@@ -98,8 +99,7 @@ void crawler::run()
 			}
 		} catch ( ... ) {
 			std::cerr<<"WARNING: exception was caught during parse!"<<std::endl;
-		}
-		if (parser.getContent().contains("404") ||
+		} if (parser.getContent().contains("404") ||
 			parser.getContent().contains("301")) {
 			std::cerr<<"Got 404. site: \""
 					 <<url.toStdString()<<"\""<<std::endl;
@@ -115,6 +115,10 @@ void crawler::run()
 			QString a = parser.getUrls()[x];
 			/* if not seen, enqueue */			
 			if (m_local_url.find(a) == m_local_url.end()) {
+				if (a.contains("facebook.com")) {
+					std::cout<<"URL was too bland (ty, facebook)"<<std::endl;
+					continue;
+				}
 				/* temporarily remove the http:// tag */
 				QString prefix;
 				if (a.contains("https://")) prefix = "https://", a.replace("https://", "");
