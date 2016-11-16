@@ -82,20 +82,23 @@ void crawler::run()
 		connect(response,SIGNAL(finished()),&event,SLOT(quit()));
 		event.exec();
 		// Source should be stored here
-		QString * html = new QString(response->readAll()); 
+		QString * html = new QString(response->readAll());
 		QString read; std::cerr<<std::endl<<"\t******** In parse! ********"
 							   <<std::endl<<std::endl;
 		/* construct a parser */
 		ParseHTML parser(url, html);
 		delete html;
 		/* call the parser */
-		if (!parser()) {
-			std::cerr<<"Failed to parse request!"<<std::endl;
-			std::cerr<<"Request:"<<std::endl<<std::endl;
-			std::cerr<<read.toStdString()<<std::endl;
-			continue;
+		try {
+			if (!parser()) {
+				std::cerr<<"Failed to parse request!"<<std::endl;
+				std::cerr<<"Request:"<<std::endl<<std::endl;
+				std::cerr<<read.toStdString()<<std::endl;
+				continue;
+			}
+		} catch ( ... ) {
+			std::cerr<<"WARNING: exception was caught during parse!"<<std::endl;
 		}
-
 		if (parser.getContent().contains("404") ||
 			parser.getContent().contains("301")) {
 			std::cerr<<"Got 404. site: \""
