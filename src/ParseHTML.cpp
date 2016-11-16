@@ -1,7 +1,10 @@
 #include "ParseHTML.hpp"
 
 ParseHTML::ParseHTML(const QString & _url, const QString & _html) {
-	m_url=_url; m_html=_html; m_content = ""; m_title="";
+	m_url=_url;
+	m_html=new QString(""); (*m_html)+=_html;
+	m_content=new QString("");
+	m_title="";
 }
 
 bool ParseHTML::operator() () {
@@ -9,52 +12,52 @@ bool ParseHTML::operator() () {
 
 	state = START; QString tag="";
 	
-	for(int i=0; i<m_html.size(); i++) {
+	for(int i=0; i<m_html->size(); i++) {
 		switch(state) {
 		case START:
-			if(m_html[i]=='<') state=OPEN;
+			if((*m_html)[i]=='<') state=OPEN;
 			break;
 		case OPEN:
-			if(m_html[i]=='>') {
+			if((*m_html)[i]=='>') {
 				tag=parseTag(tag);
 				state=CLOSE;
-			} else tag+=m_html[i];
+			} else tag+=(*m_html)[i];
 			break;
 		case CLOSE:
-			if(m_html[i]=='<') {
+			if((*m_html)[i]=='<') {
 				state=OPEN;
 				tag.clear();
 			} else if(tag.contains("content")) {
 				state=CONTENT;
-				m_content+=m_html[i];
+				(*m_content)+=(*m_html)[i];
 				tag.clear();
 			} else if(tag.contains("title")) {
 				state=TITLE;
-				m_title+=m_html[i];
+				m_title+=(*m_html)[i];
 				tag.clear();
 			} break;
 		case TITLE:
-			if(m_html[i]=='<') state=OPEN;
-			else m_title+=m_html[i];
+			if((*m_html)[i]=='<') state=OPEN;
+			else m_title+=(*m_html)[i];
 			break;
 		case CONTENT:
-			if(m_html[i]=='<') state=OPEN;
-			else m_content+=m_html[i];
+			if((*m_html)[i]=='<') state=OPEN;
+			else (*m_content)+=(*m_html)[i];
 			break;
 		} 
 	}
 
 	parseContent();
-	std::cerr<<"content: "<<m_content.toStdString()<<std::endl;
+	std::cerr<<"content: "<<m_content->toStdString()<<std::endl;
 	
 	// returns false if no content is found
-	if(m_content.size()==0 && m_urls.size()==0) return false;
+	if(m_content->size()==0 && m_urls.size()==0) return false;
 	return true;
 }
 
 const QString& ParseHTML::getTitle() {return m_title;}
-const QString& ParseHTML::getHtml() {return m_html;}
-const QString& ParseHTML::getContent() {return m_content;}
+const QString& ParseHTML::getHtml() {return *m_html;}
+const QString& ParseHTML::getContent() {return *m_content;}
 const QQueue<QString>& ParseHTML::getUrls() {return m_urls;}
 const QMap<QString, int> & ParseHTML::getKeywords() {return m_keywords;}
 
@@ -118,34 +121,31 @@ QString ParseHTML::parseTag(QString _tag) {
 }
 
 void ParseHTML::parseContent() {
-	if(m_content.size()==0) return;
+	if(m_content->size()==0) return;
 
-    m_content.replace('\r', " "); m_content.replace('\n', " ");
-	m_content.replace('\t', " "); m_content.replace('\b', " ");
-	m_content.replace('\f', " "); m_content.replace('\a', " ");
-	m_content.replace('\v', " "); 
+    m_content->replace(QRegExp("[\r\t\n\v\f\b\a]"), " "); 
 
 	QString word = "";
 	enum {WHITE, LETTER} state; state=LETTER;
-	for(int i=0; i<m_content.size();i++) {
+	for(int i=0; i<m_content->size();i++) {
 		switch(state) {
 		case LETTER:
-			if(m_content[i] == ' '){
+			if((*m_content)[i] == ' '){
 				state=WHITE;
 				if(word.size()==0) continue;
 				if(!m_keywords.value(word)) m_keywords.insert(word, 1);
 				else m_keywords.insert(word, m_keywords.value(word)+1);
 				word.clear();
-			} else word+=m_content[i];
+			} else word+=(*m_content)[i];
 			break;
 		case WHITE:
-			if(m_content[i]!=' ') {
+			if((*m_content)[i]!=' ') {
 				state=LETTER;
-				word+=m_content[i];
+				word+=(*m_content)[i];
 			} else {
-				m_content.remove(i,1);
+				m_content->remove(i,1);
 				i--;
 			} break;
 		}
-	} m_content.resize(m_content.size());
+	} m_content->resize(m_content->size());
 }
