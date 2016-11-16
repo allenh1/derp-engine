@@ -173,7 +173,9 @@ void master_node::build_message(tcp_connection * p) {
 			QStringList things = lines[i].split(":::");
 			if (things.size() < 3) continue;
 			*htmlDoc+=tableEntryHyperLink; *htmlDoc+=things.at(0);
-			*htmlDoc+=tableEntryEndLink; *htmlDoc+=things.at(1);
+			*htmlDoc+=tableEntryEndLink;
+			if(things.at(1).size()>1) *htmlDoc+=things.at(1);
+			else *htmlDoc+="Search Result";
 			*htmlDoc+=tableEntryEndSummary; *htmlDoc+=things.at(2);
 			*htmlDoc+=tableEntryEndText;
 		} *htmlDoc+=htmlEnd; collect+=*htmlDoc;
