@@ -13,11 +13,16 @@ ParseHTML::~ParseHTML() {
 }
 
 bool ParseHTML::operator() () {
+	
 	enum {START, OPEN, CLOSE, TITLE, CONTENT} state;
 
 	state = START; QString tag="";
-	
-	for(int i=0; i<m_html->size(); i++) {
+	std::cout<<"starts parse operation"<<std::endl;
+	int max;
+	if(m_html->size() > 2<<21) max=2<<21;
+	else max=m_html->size();
+	for(int i=0; i<max; i++) {
+		//std::cerr<<m_html->toStdString()[i];
 		switch(state) {
 		case START:
 			if((*m_html)[i]=='<') state=OPEN;
@@ -50,7 +55,7 @@ bool ParseHTML::operator() () {
 			else (*m_content)+=(*m_html)[i];
 			break;
 		} 
-	}
+	} std::cerr<<"end"<<std::endl;
 
 	parseContent();
 	std::cerr<<"content: "<<m_content->toStdString()<<std::endl;
@@ -126,6 +131,7 @@ QString ParseHTML::parseTag(QString _tag) {
 }
 
 void ParseHTML::parseContent() {
+	std::cout<<"parse content"<<std::endl;
 	if(m_content->size()==0) return;
 
     m_content->replace(QRegExp("[\r\t\n\v\f\b\a]"), " "); 
