@@ -102,7 +102,7 @@ bool master_node::search(QString text) {
 
 	QSqlQuery query(m_db);
 	QString txt = "SELECT DISTINCT websites.url, websites.title, websites.content, website_keyword_relation.times_used FROM websites, keywords, website_keyword_relation WHERE websites.website_id=website_keyword_relation.website_id AND website_keyword_relation.keyword_id=keywords.keyword_id AND keywords.keyword='";	
-	txt += text + "'";
+	txt += text + "' ORDER BY website_keyword_relation.times_used DESC";
 	query.prepare(txt);
 	
 	if(!query.exec()) {
