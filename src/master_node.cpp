@@ -69,6 +69,9 @@ void master_node::handle_search(QTcpSocket * p_socket, QString * text) {
 	QStringList words = text->split(' ');
 
 	for(int i=0; i<words.size(); i++) {
+		std::cerr<<"word: \""<<words[i].toStdString()<<"\""<<std::endl;
+		words[i]=words[i].trimmed();
+		if(words[i].size()==0) continue;
 		try {
 			if (!search(words[i])) {
 				std::cerr<<"No results found!"<<std::endl;
@@ -98,9 +101,7 @@ bool master_node::search(QString text) {
 	} 
 
 	QSqlQuery query(m_db);
-	QString txt = "SELECT websites.url, websites.title, websites.content, website_keyword_relation.times_used ";
-	txt+="FROM websites, keywords, website_keyword_relation";
-	txt+=" WHERE website_keyword_relation.keyword_id=keywords.keyword_id AND keywords.keyword='";	
+	QString txt = "SELECT DISTINCT websites.url, websites.title, websites.content, website_keyword_relation.times_used FROM websites, keywords, website_keyword_relation WHERE websites.website_id=website_keyword_relation.website_id AND website_keyword_relation.keyword_id=keywords.keyword_id AND keywords.keyword='";	
 	txt += text + "'";
 	query.prepare(txt);
 	
@@ -114,6 +115,7 @@ bool master_node::search(QString text) {
 		return false;
 	}
 
+	query.next();
 	for (; query.next();) {
 		*_msg += query.value(0).toString() + ":::"
 			+ query.value(1).toString() + ":::" +
