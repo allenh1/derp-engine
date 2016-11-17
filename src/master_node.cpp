@@ -17,7 +17,8 @@ master_node::master_node(const QString & _hostname,
 	 m_port(_port)
 {
 	_to_browser = new QByteArray("");
-	_msg = new QString("");
+	results = new QMap<QString,int>();
+	_msg=new QString("");
 }
 
 master_node::~master_node()
@@ -74,8 +75,7 @@ void master_node::handle_search(QTcpSocket * p_socket, QString * text) {
 		}// else _msg = new QString("OK\r\n");
 	} catch ( ... ) {
 		_msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");		
-	}
-	build_message(client);
+	} build_message(client);
 }
 
 void master_node::handle_home_page(QTcpSocket * p_socket) {
@@ -88,6 +88,7 @@ void master_node::handle_home_page(QTcpSocket * p_socket) {
 }
 
 bool master_node::search(QString text) {
+	m_search=text;
 	std::cerr<<"search function called on \""
 			 <<text.toStdString()<<"\""<<std::endl;
 	if(!m_db.open()) {
@@ -113,14 +114,16 @@ bool master_node::search(QString text) {
 	} else if (!query.size()) {
 		*_msg += "\n";
 		return false;
-	}
-
+	}	
+	
 	for (; query.next();) {
-		*_msg += query.value(0).toString() + ":::"
+		QString tmp=query.value(0).toString() + ":::"
 			+ query.value(1).toString() + ":::" +
-			query.value(2).toString() + ":::"+ query.value(3).toString() +";;;";
-	}
-	return true;
+			query.value(2).toString();
+		int count=query.value(3).toInt();
+		if(!results->value(tmp,0)) results->insert(tmp, count);
+		else results->insert(tmp, results->value(tmp,0)+count);
+	} return true;
 }
 
 /**
@@ -164,23 +167,22 @@ void master_node::build_message(tcp_connection * p) {
 	collect+=crlf;
 
 	QString * htmlDoc = new QString();
-	*htmlDoc+= QString(htmlBegin) + "Derp-Engine Results:" + htmlEndHead + htmlLine;
-
-	//std::cout<<"msg: "<<_msg->toStdString()<<std::endl;
+	QString c; c.setNum(results->size());
+	*htmlDoc+= QString(htmlBegin) + "Derp-Engine Results: " + c
+		+ htmlEndHead + htmlLine;
 
 	if(_msg->contains("ERROR")) {
 		*htmlDoc+=htmlEnd; collect+=*htmlDoc;
-	} else if(_msg->size() > 1) {
-		QStringList lines = _msg->split(";;;");
-		for(int i=0; i<lines.size();i++) {
-			//std::cout<<"line "<<i<<": "<<lines[i].toStdString()<<std::endl;
-			QStringList things = lines[i].split(":::");
+	} else if(c.toInt() > 0) {
+		
+		for(int i=0;i<c.toInt();i++) {
+			QStringList things = results->keys()[i].split(":::");
 			if (things.size() < 3) continue;
 			*htmlDoc+=tableEntryHyperLink; *htmlDoc+=things.at(0);
 			*htmlDoc+=tableEntryEndLink;
 			things.replace(1, things.at(1).trimmed());
 			if(things.at(1).size()>0) *htmlDoc+=things.at(1);
-			else *htmlDoc+="Search Result";
+			else *htmlDoc+=m_search;
 			*htmlDoc+=tableEntryEndSummary; *htmlDoc+=things.at(2);
 			*htmlDoc+=tableEntryEndText;
 		} *htmlDoc+=htmlEnd; collect+=*htmlDoc;

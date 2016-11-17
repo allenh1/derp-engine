@@ -12,6 +12,7 @@
 #include <string.h>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QMap>
 
 /* File Includes */
 #include "tcp_thread.hpp"
@@ -56,7 +57,9 @@ public:
 private:
 	volatile bool m_continue = true;
 
+	QMap<QString,int> * results;
 	QString * _msg;
+	QString m_search;
 	QByteArray * _to_browser;
 	
 	QString m_hostname;
@@ -70,8 +73,8 @@ private:
 "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/icon?family=Material+Icons\">"
 "<link rel=\"stylesheet\" href=\"https://code.getmdl.io/1.2.1/material.blue-pink.min.css\" />"
 "<script defer src=\"https://code.getmdl.io/1.2.1/material.min.js\"></script>"
-"  </header><head><title>Derp-Engine</title></head><body><h5>";
-	const char * htmlEndHead = "</h5><table><tbody>";
+"  </header><head><title>Derp-Engine</title></head><body><h4>";
+	const char * htmlEndHead = "</h4><table><tbody>";
 	const char * htmlLine = "<tr><th colspan=\"5\"><hr></th></tr>";
 	const char * tableEntryHyperLink = "<tr><td><details open><summary><a  href=\"";
 	const char * tableEntryEndLink = "\" target=\"_blank\">";

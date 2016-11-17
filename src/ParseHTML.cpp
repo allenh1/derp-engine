@@ -185,8 +185,8 @@ void ParseHTML::parseContent() {
 		case LETTER:
 			if((*m_content)[i] == ' '){
 				state=WHITE;
+				word=word.trimmed();
 				if(word.size()==0) continue;
-				else word=word.trimmed();
 				if(!m_keywords.value(word)) m_keywords.insert(word, 1);
 				else m_keywords.insert(word, m_keywords.value(word)+1);
 				word.clear();
