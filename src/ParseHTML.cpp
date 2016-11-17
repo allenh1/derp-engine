@@ -16,7 +16,7 @@ bool ParseHTML::operator() () {
 	
 	enum {START, OPEN, CLOSE, TITLE, CONTENT} state;
 
-	state = START; QString tag="";
+	state = START; QString tag=""; QString type="";
 	
 	int max;
 	if(m_html->size() > 2<<21) max=2<<21;
@@ -31,22 +31,25 @@ bool ParseHTML::operator() () {
 			break;
 		case OPEN:
 			if((*m_html)[i]=='>') {
-				tag=parseTag(tag);
+				type=parseTag(tag);
+				tag.clear();
 				state=CLOSE;
 			} else tag+=(*m_html)[i];
 			break;
 		case CLOSE:
-			if((*m_html)[i]=='<') {
+			if((*m_html)[i]=='<' && (*m_html)[i-1]!='\''
+				&& (*m_html)[i-1]!='"') {
 				state=OPEN;
-				tag.clear();
-			} else if(tag.contains("content")) {
+				type.clear();
+			} else if(type.contains("content")) {
 				state=CONTENT;
+				(*m_content)+=' ';
 				(*m_content)+=(*m_html)[i];
-				tag.clear();
-			} else if(tag.contains("title")) {
+				type.clear();
+			} else if(type.contains("title")) {
 				state=TITLE;
 				m_title+=(*m_html)[i];
-				tag.clear();
+				type.clear();
 			} break;
 		case TITLE:
 			if((*m_html)[i]=='<') state=OPEN;
@@ -63,7 +66,7 @@ bool ParseHTML::operator() () {
 	} std::cerr<<"end parsing"<<std::endl;
 
 	parseContent();
-	//std::cerr<<"content found: "<<m_content->toStdString()<<std::endl;
+	std::cerr<<"content found: "<<m_content->toStdString()<<std::endl;
 	
 	// returns false if no content is found
 	if(m_content->size()==0 && m_urls.size()==0) return false;
@@ -134,12 +137,22 @@ QString ParseHTML::parseTag(QString _tag) {
 		}
 	}
 	// return "content" if content follows tag
-	if(!_tag.contains("link") && _tag.indexOf("style")!=0
-	   && !_tag.contains("script")) {
+	if(_tag.indexOf("link")==0) {
+		res="skip";
+		return res;
+	}
+	else if(_tag.indexOf("body")==0 || _tag.indexOf("div")==0
+			|| _tag.indexOf("p")==0 || _tag.indexOf("a")==0
+			|| _tag.indexOf("th")==0 || _tag.indexOf("tr")==0
+			|| _tag.indexOf("h")==0 || _tag.indexOf("ul")==0
+		    || _tag.indexOf("li")==0 || _tag.indexOf("i")==0
+		    || _tag.indexOf("option")==0 || _tag.indexOf("span")==0
+			|| _tag.indexOf("string")==0 || _tag.indexOf("img")==0)
+    {
 		res="content";
 		return res;
-	} res="skip";
-	return res;
+	} else res="skip";
+    return res;
 }
 
 void ParseHTML::parseContent() {
@@ -160,7 +173,8 @@ void ParseHTML::parseContent() {
 	m_content->replace("&", ""); m_content->replace("^", "");
 	m_content->replace("`", ""); m_content->replace("~", "");
 	m_content->replace("]", ""); m_content->replace("[", "");
-	m_content->replace("_", "");
+	m_content->replace("_", ""); m_content->replace("|", "");
+	m_content->replace("“", "");
 
 	QString word = "";
 	enum {WHITE, LETTER} state; state=LETTER;
