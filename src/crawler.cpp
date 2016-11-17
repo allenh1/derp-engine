@@ -31,7 +31,6 @@ bool crawler::discovered(const QString & url)
 	/* check for the url locally, first. */
 	auto && x = m_local_url.find(url);
 	if (x != m_local_url.end()) return true;
-	
 	if (!m_db.open()) {
 		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
 		return true;
@@ -41,8 +40,8 @@ bool crawler::discovered(const QString & url)
 	query.prepare(query_string);
 
 	if (!query.exec()) {
-		std::cerr<<"Error: Query failed to execute!"<<std::endl;
-		std::cerr<<"Query: \""<<query.lastQuery().toStdString()<<"\""<<std::endl;
+		std::cout<<"Error: Query failed to execute!"<<std::endl;
+		std::cout<<"Query: \""<<query.lastQuery().toStdString()<<"\""<<std::endl;
 		m_local_url[url] = url;
 		return true;
 	} return query.size();
@@ -59,8 +58,8 @@ bool crawler::check_content(const QString & url, const QString & content) {
 	query.prepare(query_string);
 
 	if (!query.exec()) {
-		std::cerr<<"Error: Query failed to execute!"<<std::endl;
-		std::cerr<<"Query: \""<<query.lastQuery().toStdString()<<"\""<<std::endl;
+		std::cout<<"Error: Query failed to execute!"<<std::endl;
+		std::cout<<"Query: \""<<query.lastQuery().toStdString()<<"\""<<std::endl;
 		return true;
 	} return query.size();
 }
@@ -76,7 +75,7 @@ bool crawler::send_url_to_db(QString url, QString title, QString text)
 	} if ((p_mutex->unlock(), 1) && (check_content(url,text)
 									 || (p_mutex->lock(), 1)))
 	  {
-		  std::cerr<<"content + url already exisits"<<std::endl;
+		  std::cout<<"content + url already exisits"<<std::endl;
 		  p_mutex->unlock(); return false;
 	  }
 	
@@ -105,8 +104,8 @@ bool crawler::add_keyword_to_db(QString url, QString word, int count)
 	query.bindValue(2, count);
 
 	if (!query.exec()) {
-		std::cerr<<"Error: Query failed to execute!"<<std::endl;
-		std::cerr<<"Query: \""<<query.lastQuery().toStdString()<<"\""<<std::endl;
+		std::cout<<"Error: Query failed to execute!"<<std::endl;
+		std::cout<<"Query: \""<<query.lastQuery().toStdString()<<"\""<<std::endl;
 		return false;
 	} return true;
 }
@@ -129,7 +128,7 @@ void crawler::run()
 		event.exec();
 		// Source should be stored here
 		QString * html = new QString(response->readAll());
-		QString read; std::cerr<<std::endl<<"\t******** In parse! ********"
+		QString read; std::cout<<std::endl<<"\t******** In parse! ********"
 							   <<std::endl<<std::endl;
 		/* construct a parser */
 		ParseHTML parser(url, html);
@@ -137,19 +136,19 @@ void crawler::run()
 		/* call the parser */
 		try {
 			if (!parser()) {
-				std::cerr<<"Failed to parse request!"<<std::endl;
-				std::cerr<<"Request:"<<std::endl<<std::endl;
-				std::cerr<<read.toStdString()<<std::endl;
+				std::cout<<"Failed to parse request!"<<std::endl;
+				std::cout<<"Request:"<<std::endl<<std::endl;
+				std::cout<<read.toStdString()<<std::endl;
 				continue;
 			}
 		} catch ( ... ) {
-			std::cerr<<"WARNING: exception was caught during parse!"<<std::endl;
+			std::cout<<"WARNING: exception was caught during parse!"<<std::endl;
 		} if (parser.getTitle().contains("404")
 				|| parser.getTitle().contains("301")
 				|| parser.getTitle().contains("302")
 				|| parser.getTitle().contains("406")
 				|| parser.getTitle().contains("403")) {
-			std::cerr<<"Got 404. site: \""
+			std::cout<<"Got 404. site: \""
 					 <<url.toStdString()<<"\""<<std::endl;
 			continue;
 		}
@@ -192,7 +191,7 @@ void crawler::run()
 			add_keyword_to_db(url, x.key(), x.value());
 		}
 
-		std::cerr<<std::endl<<"\t******** Leaving Parse! ********"
+		std::cout<<std::endl<<"\t******** Leaving Parse! ********"
 				 <<std::endl<<std::endl;
-	} std::cerr<<"Somehow we hit a wall? What?"<<std::endl;
+	} std::cout<<"Somehow we hit a wall? What?"<<std::endl;
 }
