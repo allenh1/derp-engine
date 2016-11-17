@@ -26,6 +26,7 @@ public:
 	Q_SLOT void stop();
 	Q_SLOT void parse();
 	Q_SLOT bool send_url_to_db(QString, QString, QString);
+	Q_SLOT bool add_keyword_to_db(QString, QString, int);
 
 	Q_SIGNAL void got_url(QString *);
 	Q_SIGNAL void no_more_urls();

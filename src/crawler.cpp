@@ -66,6 +66,23 @@ bool crawler::send_url_to_db(QString url, QString title, QString text)
 	} return true;
 }
 
+bool crawler::add_keyword_to_db(QString url, QString word, int count)
+{
+	if (!m_db.open()) {
+		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
+	    return false;
+	} QSqlQuery query(m_db);
+
+	query.prepare("CALL InsertKeyword(?, ?, ?, @success)");
+	query.bind(0, url); query.bind(1, word); query.bind(2, count);
+
+	if (!query.exec()) {
+		std::cerr<<"Error: Query failed to execute!"<<std::endl;
+		std::cerr<<"Query: \""<<query.lastQuery().toStdString()<<"\""<<std::endl;
+		return false;
+	} return true;
+}
+
 void crawler::run()
 {
 	std::cout<<"Crawling..."<<std::endl;
@@ -138,9 +155,13 @@ void crawler::run()
 						 <<"]: \""<<toPush.toStdString()<<"\""<<std::endl;
 			}
 		}
+		QMap<QString, int>::const_iterator x;
+		for (x = parser.getKeywords().begin();
+			 x != parser.getKeywords().end(); ++x) {
+			add_keyword_to_db(url, x.key(), x.value());
+		}
 
 		std::cerr<<std::endl<<"\t******** Leaving Parse! ********"
 				 <<std::endl<<std::endl;
-		//for (; m_saving_file; m_p_thread->msleep(100));
 	} std::cerr<<"Somehow we hit a wall? What?"<<std::endl;
 }

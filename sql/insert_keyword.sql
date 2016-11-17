@@ -4,6 +4,7 @@ DROP PROCEDURE IF EXISTS InsertKeyword$$
 CREATE PROCEDURE InsertKeyword(
  IN _url VARCHAR(500),
  IN _word VARCHAR(100),
+ IN _times INT,
  OUT success BOOLEAN)
 BEGIN
  -- Count the urls that exist
@@ -23,21 +24,9 @@ BEGIN
   SELECT DISTINCT keyword_id AS count INTO kid FROM keywords WHERE keyword = _word;
   -- Find the website
   SELECT DISTINCT website_id AS count INTO wid FROM websites WHERE url = _url;
-  -- Find a pairing if it exists.
-  SELECT count(times_used) AS count INTO Z FROM website_keyword_relation
-    WHERE website_id = wid AND keyword_id = kid;
-
-  -- create the relation if it's not there.
-  IF Z = 0 THEN
-    -- create the relation
-	INSERT INTO website_keyword_relation(website_id, keyword_id, times_used)
-	  VALUES(wid, kid, Z);
-  END IF;
-
-  -- update the count
-  UPDATE website_keyword_relation
-    SET times_used = times_used + 1
-    WHERE website_id = wid AND keyword_id = kid;
+  -- create the relation
+  INSERT INTO website_keyword_relation(website_id, keyword_id, times_used)
+    VALUES(wid, kid, _times);
   -- mark this transaction as successfull.    
   SET success = 1;
  END IF;
