@@ -74,7 +74,8 @@ bool crawler::add_keyword_to_db(QString url, QString word, int count)
 	} QSqlQuery query(m_db);
 
 	query.prepare("CALL InsertKeyword(?, ?, ?, @success)");
-	query.bind(0, url); query.bind(1, word); query.bind(2, count);
+	query.bindValue(0, url); query.bindValue(1, word);
+	query.bindValue(2, count);
 
 	if (!query.exec()) {
 		std::cerr<<"Error: Query failed to execute!"<<std::endl;
