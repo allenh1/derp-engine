@@ -22,7 +22,7 @@ bool ParseHTML::operator() () {
 	if(m_html->size() > 2<<21) max=2<<21;
 	else max=m_html->size();
 
-	std::cout<<"starts parse operation"<<std::endl;
+	std::cout<<"parse: "<<m_url.toStdString()<<std::endl;
 	for(int i=0; i<max; i++) {
 		//std::cerr<<m_html->toStdString()[i];
 		switch(state) {
@@ -50,7 +50,10 @@ bool ParseHTML::operator() () {
 			} break;
 		case TITLE:
 			if((*m_html)[i]=='<') state=OPEN;
-			else m_title+=(*m_html)[i];
+			else if((*m_html)[i]=='>') {
+				state=START;
+				m_title.clear();
+			} else m_title+=(*m_html)[i];
 			break;
 		case CONTENT:
 			if((*m_html)[i]=='<') state=OPEN;
@@ -108,7 +111,7 @@ QString ParseHTML::parseTag(QString _tag) {
 		QString temp = "";
 		for(int i=index+6; _tag[i]!='"'
 				&&_tag[i]!='\''
-				&&(i-(index+6)<100);i++) {
+				&&(i-(index+6)<500);i++) {
 			temp+=_tag[i];
 		}
 		parseUrl(temp);
@@ -118,8 +121,7 @@ QString ParseHTML::parseTag(QString _tag) {
 	// if not title tag found return "title"
 	// on first header found
 	QString res;
-	if(_tag.contains("title") && m_title.size()==0
-	   &&!_tag.contains("doctitle")) {
+	if(_tag.contains("title") && m_title.size()==0) {
 		std::cerr<<"found title: "<<_tag.toStdString()<<std::endl;
 		res="title";
 		return res;
@@ -168,5 +170,11 @@ void ParseHTML::parseContent() {
 				i--;
 			} break;
 		}
-	} m_content->resize(m_content->size());
+	} *m_content=m_content->trimmed();
+	m_content->resize(m_content->size());
+	m_title=m_title.trimmed();
+	int size = m_title.size();
+	if(size > 100) size = 100;
+	m_title.resize(size);
+	std::cerr<<"end parse content"<<std::endl;
 }
