@@ -18,6 +18,7 @@ public:
 
 	bool init();
 	bool discovered(const QString & url);
+	bool check_content(const QString & content);
 	const volatile bool & is_running() { return m_continue; }
 	const QThread * get_thread() { return m_p_thread; }
 	const QStack<QString> & get_unexplored() { return m_unexplored; }

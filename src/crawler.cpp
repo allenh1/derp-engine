@@ -36,7 +36,7 @@ bool crawler::discovered(const QString & url)
 		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
 		return true;
 	} QSqlQuery query(m_db);
-	QString query_string = "SELECT * FROM websites WHERE url = \"";
+	QString query_string = "SELECT DISTINCT url FROM websites WHERE url = \"";
 	query_string += url + "\"";
 	query.prepare(query_string);
 
@@ -48,12 +48,31 @@ bool crawler::discovered(const QString & url)
 	} return query.size();
 }
 
+bool crawler::check_content(const QString & content) {
+
+	if (!m_db.open()) {
+		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
+		return true;
+	} QSqlQuery query(m_db);
+	QString query_string = "SELECT DISTINCT url FROM websites WHERE content = \"";
+	query_string += content + "\"";
+	query.prepare(query_string);
+
+	if (!query.exec()) {
+		std::cerr<<"Error: Query failed to execute!"<<std::endl;
+		std::cerr<<"Query: \""<<query.lastQuery().toStdString()<<"\""<<std::endl;
+		return true;
+	} return query.size();
+}
+
 bool crawler::send_url_to_db(QString url, QString title, QString text)
 {
 	if (!m_db.open()) {
 		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
 	    return false;
-	} QSqlQuery query(m_db);
+	} if (check_content(text)) return false;
+
+	QSqlQuery query(m_db);
 
 	query.prepare("INSERT INTO websites(url, title, content) VALUES(?, ?, ?)");
 	query.bindValue(0, url); query.bindValue(1, title);
@@ -117,8 +136,11 @@ void crawler::run()
 			}
 		} catch ( ... ) {
 			std::cerr<<"WARNING: exception was caught during parse!"<<std::endl;
-		} if (parser.getContent().contains("404") ||
-			parser.getContent().contains("301")) {
+		} if (parser.getTitle().contains("404")
+				|| parser.getTitle().contains("301")
+				|| parser.getTitle().contains("302")
+				|| parser.getTitle().contains("406")
+				|| parser.getTitle().contains("403")) {
 			std::cerr<<"Got 404. site: \""
 					 <<url.toStdString()<<"\""<<std::endl;
 			continue;
@@ -133,7 +155,7 @@ void crawler::run()
 			QString a = parser.getUrls()[x];
 			/* if not seen, enqueue */			
 			if (m_local_url.find(a) == m_local_url.end()) {
-				if (a.contains("facebook.com")) {
+				if (a.contains("facebook.com") || a.contains("linkedin.com")) {
 					std::cout<<"URL was too bland (ty, Facebook)"<<std::endl;
 					continue;
 				} else if (a.contains("google.com")) {
