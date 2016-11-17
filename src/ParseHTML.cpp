@@ -134,8 +134,8 @@ QString ParseHTML::parseTag(QString _tag) {
 		}
 	}
 	// return "content" if content follows tag
-	if(_tag.indexOf("link")!=0 && _tag.indexOf("style")!=0
-	   && _tag.indexOf("script")!=0) {
+	if(!_tag.contains("link") && _tag.indexOf("style")!=0
+	   && !_tag.contains("script")) {
 		res="content";
 		return res;
 	} res="skip";
