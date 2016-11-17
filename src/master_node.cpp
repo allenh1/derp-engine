@@ -66,21 +66,16 @@ bool master_node::init()
 void master_node::handle_search(QTcpSocket * p_socket, QString * text) {
 	QString host = p_socket->peerName();
 	tcp_connection * client = new tcp_connection(host, p_socket);
-	QStringList words = text->split(' ');
 
-	for(int i=0; i<words.size(); i++) {
-		std::cerr<<"word: \""<<words[i].toStdString()<<"\""<<std::endl;
-		words[i]=words[i].trimmed();
-		if(words[i].size()==0) continue;
-		try {
-			if (!search(words[i])) {
-				std::cerr<<"No results found!"<<std::endl;
-				_msg = new QString("ERROR: NO RESULTS FOUND\r\n");
-			}// else _msg = new QString("OK\r\n");
-		} catch ( ... ) {
-			_msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");		
-		}
-	} build_message(client);
+	try {
+		if (!search(*text)) {
+			std::cerr<<"No results found!"<<std::endl;
+			_msg = new QString("ERROR: NO RESULTS FOUND\r\n");
+		}// else _msg = new QString("OK\r\n");
+	} catch ( ... ) {
+		_msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");		
+	}
+	build_message(client);
 }
 
 void master_node::handle_home_page(QTcpSocket * p_socket) {
@@ -98,11 +93,16 @@ bool master_node::search(QString text) {
 	if(!m_db.open()) {
 		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
 		return false;
-	} 
+	} QSqlQuery query(m_db);
+	QString txt = "SELECT DISTINCT websites.url, websites.title, websites.content, website_keyword_relation.times_used FROM websites, keywords, website_keyword_relation WHERE websites.website_id=website_keyword_relation.website_id AND website_keyword_relation.keyword_id=keywords.keyword_id AND ( "; 	
 
-	QSqlQuery query(m_db);
-	QString txt = "SELECT DISTINCT websites.url, websites.title, websites.content, website_keyword_relation.times_used FROM websites, keywords, website_keyword_relation WHERE websites.website_id=website_keyword_relation.website_id AND website_keyword_relation.keyword_id=keywords.keyword_id AND keywords.keyword='";	
-	txt += text + "' ORDER BY website_keyword_relation.times_used DESC";
+	QStringList words = text.split(' ');
+	for(int i=0; i<words.size(); i++) {
+		words[i]=words[i].trimmed();
+		if(words[i].size()==0) continue;
+		if(i!=0) txt+=" OR ";
+		txt+="keywords.keyword='" + text + "' "; 
+	} txt+=") ORDER BY website_keyword_relation.times_used DESC";
 	query.prepare(txt);
 	
 	if(!query.exec()) {
