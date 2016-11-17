@@ -158,8 +158,11 @@ QString ParseHTML::parseTag(QString _tag) {
 void ParseHTML::parseContent() {
 	std::cout<<"parse content"<<std::endl;
 	if(m_content->size()==0) return;
-
+	m_content=new QString(m_content->toLatin1());
     m_content->replace(QRegExp("[\r\t\n\v\f\b\a]"), " ");
+	m_content=new QString(m_content->toLatin1());
+	m_content->replace('?', ' ');
+	m_content=new QString(m_content->toLatin1());
 	m_content->replace(",", ""); m_content->replace(".", "");
 	m_content->replace("(", ""); m_content->replace(")", "");
 	m_content->replace("{", ""); m_content->replace("}", "");
@@ -174,7 +177,6 @@ void ParseHTML::parseContent() {
 	m_content->replace("`", ""); m_content->replace("~", "");
 	m_content->replace("]", ""); m_content->replace("[", "");
 	m_content->replace("_", ""); m_content->replace("|", "");
-	m_content->replace("“", "");
 
 	QString word = "";
 	enum {WHITE, LETTER} state; state=LETTER;
@@ -188,19 +190,22 @@ void ParseHTML::parseContent() {
 				if(!m_keywords.value(word)) m_keywords.insert(word, 1);
 				else m_keywords.insert(word, m_keywords.value(word)+1);
 				word.clear();
-			} else word+=(*m_content)[i];
+			} else word+=(*m_content)[i].toLatin1();
 			break;
 		case WHITE:
 			if((*m_content)[i]!=' ') {
 				state=LETTER;
-				word+=(*m_content)[i];
+				word+=(*m_content)[i].toLatin1();
 			} else {
 				m_content->remove(i,1);
 				i--;
 			} break;
 		}
-	} *m_content=m_content->trimmed();
+	} m_content=new QString(m_content->toLatin1());
+	m_content->replace("?","");
+	(*m_content)=m_content->trimmed();
 	m_content->resize(m_content->size());
+	
 	m_title=m_title.trimmed();
 	int size = m_title.size();
 	if(size > 100) size = 100;
