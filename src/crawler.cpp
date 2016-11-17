@@ -48,14 +48,14 @@ bool crawler::discovered(const QString & url)
 	} return query.size();
 }
 
-bool crawler::check_content(const QString & content) {
+bool crawler::check_content(const QString & url, const QString & content) {
 
 	if (!m_db.open()) {
 		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
 		return true;
 	} QSqlQuery query(m_db);
 	QString query_string = "SELECT DISTINCT url FROM websites WHERE content = \"";
-	query_string += content + "\"";
+	query_string += content + "\"" " AND url LIKE \"%" + url + "%\"";
 	query.prepare(query_string);
 
 	if (!query.exec()) {
@@ -73,6 +73,14 @@ bool crawler::send_url_to_db(QString url, QString title, QString text)
 	} if (check_content(text)) return false;
 
 	QSqlQuery query(m_db);
+	} if ((p_mutex->unlock(), 1) && (check_content(url,text)
+									 || (p_mutex->lock(), 1)))
+	  {
+		  std::cerr<<"content + url already exisits"<<std::endl;
+		  p_mutex->unlock(); return false;
+	  }
+	
+	QSqlQuery query(*m_db);
 
 	query.prepare("INSERT INTO websites(url, title, content) VALUES(?, ?, ?)");
 	query.bindValue(0, url); query.bindValue(1, title);
@@ -148,7 +156,7 @@ void crawler::run()
 
 		if (!send_url_to_db(url, parser.getTitle(),
 							parser.getContent().left(500))) {
-			std::cerr<<"DB communication failed!"<<std::endl;
+			std::cout<<"Send db to db failed!"<<std::endl;
 		}
 		
 	    for (int x = 0; x < parser.getUrls().size(); ++x) {
@@ -158,7 +166,7 @@ void crawler::run()
 				if (a.contains("facebook.com") || a.contains("linkedin.com")) {
 					std::cout<<"URL was too bland (ty, Facebook)"<<std::endl;
 					continue;
-				} else if (a.contains("google.com")) {
+				} else if (a.contains("google.com") || a.contains("twitter.com")) {
 					std::cout<<"URL was too lame (ty, Google)"<<std::endl;
 					continue;
 				}
