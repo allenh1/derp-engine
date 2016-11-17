@@ -153,13 +153,14 @@ void ParseHTML::parseContent() {
 	m_content->replace("!", ""); m_content->replace("+", "");
 	m_content->replace("=", ""); m_content->replace("#", "");
 	m_content->replace("$", ""); m_content->replace("!", "");
-	m_content->replace("/", ""); m_content->replace("\"", "");
+	m_content->replace("/", ""); m_content->replace('"', "");
 	m_content->replace(":", ""); m_content->replace(";", "");
 	m_content->replace(">", ""); m_content->replace("<", "");
 	m_content->replace("?", ""); m_content->replace("*", "");	
 	m_content->replace("&", ""); m_content->replace("^", "");
 	m_content->replace("`", ""); m_content->replace("~", "");
 	m_content->replace("]", ""); m_content->replace("[", "");
+	m_content->replace("_", "");
 
 	QString word = "";
 	enum {WHITE, LETTER} state; state=LETTER;
@@ -169,6 +170,7 @@ void ParseHTML::parseContent() {
 			if((*m_content)[i] == ' '){
 				state=WHITE;
 				if(word.size()==0) continue;
+				else word=word.trimmed();
 				if(!m_keywords.value(word)) m_keywords.insert(word, 1);
 				else m_keywords.insert(word, m_keywords.value(word)+1);
 				word.clear();
