@@ -164,8 +164,7 @@ void master_node::build_message(tcp_connection * p) {
 	collect+=crlf;
 
 	QString * htmlDoc = new QString();
-	*htmlDoc+= QString(htmlBegin) + "Derp-Engine Results" + htmlEndTitle
-		+ "Derp-Engine Results:" + htmlEndHead + htmlLine;
+	*htmlDoc+= QString(htmlBegin) + "Derp-Engine Results:" + htmlEndHead + htmlLine;
 
 	//std::cout<<"msg: "<<_msg->toStdString()<<std::endl;
 
