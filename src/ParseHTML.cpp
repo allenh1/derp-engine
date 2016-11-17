@@ -121,7 +121,7 @@ QString ParseHTML::parseTag(QString _tag) {
 	// if not title tag found return "title"
 	// on first header found
 	QString res;
-	if(_tag.contains("title") && m_title.size()==0) {
+	if(_tag.indexOf("title")==0 && m_title.size()==0) {
 		std::cerr<<"found title: "<<_tag.toStdString()<<std::endl;
 		res="title";
 		return res;
