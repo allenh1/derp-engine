@@ -66,15 +66,17 @@ bool master_node::init()
 void master_node::handle_search(QTcpSocket * p_socket, QString * text) {
 	QString host = p_socket->peerName();
 	tcp_connection * client = new tcp_connection(host, p_socket);
-	//QStringList words = text->split("+");
-	
-	try {
-		if (!search(*text)) {
-			std::cerr<<"No results found!"<<std::endl;
-			_msg = new QString("ERROR: NO RESULTS FOUND\r\n");
-		}// else _msg = new QString("OK\r\n");
-	} catch ( ... ) {
-		_msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");		
+	QStringList words = text->split(' ');
+
+	for(int i=0; i<words.size(); i++) {
+		try {
+			if (!search(words[i])) {
+				std::cerr<<"No results found!"<<std::endl;
+				_msg = new QString("ERROR: NO RESULTS FOUND\r\n");
+			}// else _msg = new QString("OK\r\n");
+		} catch ( ... ) {
+			_msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");		
+		}
 	} build_message(client);
 }
 
@@ -96,13 +98,15 @@ bool master_node::search(QString text) {
 	} 
 
 	QSqlQuery query(m_db);
-	QString txt = "SELECT url, title, content FROM websites WHERE content LIKE \"%";	
-	txt += text + "%\" or title LIKE \"%" + text + "%\"";
+	QString txt = "SELECT websites.url, websites.title, websites.content, website_keyword_relation.times_used ";
+	txt+="FROM websites, keywords, website_keyword_relation";
+	txt+=" WHERE website_keyword_relation.keyword_id=keywords.keyword_id AND keywords.keyword='";	
+	txt += text + "'";
 	query.prepare(txt);
 	
 	if(!query.exec()) {
 		std::cerr<<"Query Failed to execute!"<<std::endl;
-		std::cerr<<"query: \""<<query.lastQuery().toStdString()<<"\""<<std::endl;	
+		std::cerr<<"query: "<<query.lastQuery().toStdString()<<std::endl;	
 		throw std::invalid_argument("failed to query the user's groups");
 		return false;
 	} else if (!query.size()) {
@@ -113,7 +117,7 @@ bool master_node::search(QString text) {
 	for (; query.next();) {
 		*_msg += query.value(0).toString() + ":::"
 			+ query.value(1).toString() + ":::" +
-			query.value(2).toString() + ";;;";
+			query.value(2).toString() + ":::"+ query.value(3).toString() +";;;";
 	}
 	return true;
 }
@@ -162,7 +166,7 @@ void master_node::build_message(tcp_connection * p) {
 	*htmlDoc+= QString(htmlBegin) + "Derp-Engine Results" + htmlEndTitle
 		+ "Derp-Engine Results:" + htmlEndHead + htmlLine;
 
-	std::cout<<"msg: "<<_msg->toStdString()<<std::endl;
+	//std::cout<<"msg: "<<_msg->toStdString()<<std::endl;
 
 	if(_msg->contains("ERROR")) {
 		*htmlDoc+=htmlEnd; collect+=*htmlDoc;
