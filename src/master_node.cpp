@@ -88,9 +88,7 @@ void master_node::handle_home_page(QTcpSocket * p_socket) {
 }
 
 bool master_node::search(QString text) {
-	m_search=text;
-	std::cerr<<"search function called on \""
-			 <<text.toStdString()<<"\""<<std::endl;
+	m_search=text; 
 	if(!m_db.open()) {
 		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
 		return false;
@@ -102,8 +100,9 @@ bool master_node::search(QString text) {
 		words[i]=words[i].trimmed();
 		if(words[i].size()==0) continue;
 		if(i!=0) txt+=" OR ";
-		txt+="keywords.keyword='" + text + "' "; 
+		txt+="keywords.keyword='" + words[i] + "' "; 
 	} txt+=") ORDER BY website_keyword_relation.times_used DESC";
+	std::cerr<<txt.toStdString()<<std::endl;
 	query.prepare(txt);
 	
 	if(!query.exec()) {
