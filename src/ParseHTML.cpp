@@ -146,7 +146,20 @@ void ParseHTML::parseContent() {
 	std::cout<<"parse content"<<std::endl;
 	if(m_content->size()==0) return;
 
-    m_content->replace(QRegExp("[\r\t\n\v\f\b\a]"), " "); 
+    m_content->replace(QRegExp("[\r\t\n\v\f\b\a]"), " ");
+	m_content->replace(",", ""); m_content->replace(".", "");
+	m_content->replace("(", ""); m_content->replace(")", "");
+	m_content->replace("{", ""); m_content->replace("}", "");
+	m_content->replace("!", ""); m_content->replace("+", "");
+	m_content->replace("=", ""); m_content->replace("#", "");
+	m_content->replace("$", ""); m_content->replace("!", "");
+	m_content->replace("/", ""); m_content->replace("\"", "");
+	m_content->replace(":", ""); m_content->replace(";", "");
+	m_content->replace(">", ""); m_content->replace("<", "");
+	m_content->replace("?", ""); m_content->replace("*", "");	
+	m_content->replace("&", ""); m_content->replace("^", "");
+	m_content->replace("`", ""); m_content->replace("~", "");
+	m_content->replace("]", ""); m_content->replace("[", "");
 
 	QString word = "";
 	enum {WHITE, LETTER} state; state=LETTER;
