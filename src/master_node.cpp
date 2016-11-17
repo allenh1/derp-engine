@@ -115,7 +115,6 @@ bool master_node::search(QString text) {
 		return false;
 	}
 
-	query.next();
 	for (; query.next();) {
 		*_msg += query.value(0).toString() + ":::"
 			+ query.value(1).toString() + ":::" +
