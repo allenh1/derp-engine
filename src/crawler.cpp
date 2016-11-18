@@ -69,18 +69,9 @@ bool crawler::send_url_to_db(QString url, QString title, QString text)
 	if (!m_db.open()) {
 		std::cerr<<"Error! Failed to open database connection!"<<std::endl;
 	    return false;
-	} if (check_content(text)) return false;
+	} if (check_content(url, text)) return false;
 
 	QSqlQuery query(m_db);
-	} if ((p_mutex->unlock(), 1) && (check_content(url,text)
-									 || (p_mutex->lock(), 1)))
-	  {
-		  std::cout<<"content + url already exisits"<<std::endl;
-		  p_mutex->unlock(); return false;
-	  }
-	
-	QSqlQuery query(*m_db);
-
 	query.prepare("INSERT INTO websites(url, title, content) VALUES(?, ?, ?)");
 	query.bindValue(0, url); query.bindValue(1, title);
 	query.bindValue(2, text);
