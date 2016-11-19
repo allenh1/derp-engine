@@ -54,7 +54,7 @@ bool crawler::check_content(const QString & url, const QString & content) {
 		return true;
 	} QSqlQuery query(m_db);
 	QString query_string = "SELECT DISTINCT url FROM websites WHERE content = \"";
-	query_string += content + "\"" " AND url LIKE \"%" + url + "%\"";
+	query_string += content + "\"" " AND url=\"" + url + "\"";
 	query.prepare(query_string);
 
 	if (!query.exec()) {
