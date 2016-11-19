@@ -17,7 +17,7 @@ master_node::master_node(const QString & _hostname,
 	 m_port(_port)
 {
 	_to_browser = new QByteArray("");
-	results = new QMap<QString,int>();
+	results = new BinarySearchDictionary();
 	_msg=new QString("");
 }
 
@@ -120,10 +120,11 @@ bool master_node::search(QString text) {
 			+ query.value(1).toString() + ":::" +
 			query.value(2).toString();
 		int count=query.value(3).toInt();
-		if(tmp.contains(m_search, Qt::CaseInsensitive)) count+=100;
-		if(!results->value(tmp,0)) results->insert(tmp, count);
-		else results->insert(tmp, results->value(tmp,0)+count);
-	} return true;
+		if(query.value(1).toString().contains(m_search,
+											  Qt::CaseInsensitive)) count+=100;
+		if(results->find(tmp)<0) results->addRecord(tmp, count);
+		else results->addRecord(tmp, results->find(tmp)+count);
+	} results->sort(); return true;
 }
 
 /**
@@ -174,9 +175,10 @@ void master_node::build_message(tcp_connection * p) {
 	if(_msg->contains("ERROR")) {
 		*htmlDoc+=htmlEnd; collect+=*htmlDoc;
 	} else if(c.toInt() > 0) {
-		
+		int * n=new int();
+		QString * res = results->keys(n);
 		for(int i=0;i<c.toInt();i++) {
-			QStringList things = results->keys()[i].split(":::");
+			QStringList things = res[i].split(":::");
 			if (things.size() < 3) continue;
 			*htmlDoc+=tableEntryHyperLink; *htmlDoc+=things.at(0);
 			*htmlDoc+=tableEntryEndLink;
@@ -185,7 +187,7 @@ void master_node::build_message(tcp_connection * p) {
 			else *htmlDoc+=m_search;
 			*htmlDoc+=tableEntryEndSummary; *htmlDoc+=things.at(2);
 			*htmlDoc+=tableEntryEndText;
-		} *htmlDoc+=htmlEnd; collect+=*htmlDoc;
+		} *htmlDoc+=htmlEnd; collect+=*htmlDoc; delete n;
 	} else collect+=_to_browser->toStdString().c_str();
 	_to_browser->clear(); _msg->clear(); results->clear();
 	QString * p_msg = new QString(collect);

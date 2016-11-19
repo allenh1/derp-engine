@@ -7,14 +7,19 @@ SOURCES += src/main.cpp \
            src/file_downloader.cpp \
            src/tcp_thread.cpp \
            src/tcp_connection.cpp \
-           src/master_node.cpp
+           src/master_node.cpp \
+           src/array-dictionary.cpp \
+           src/bsearch-dictionary.cpp
            		   
 HEADERS += src/ParseHTML.hpp \ 
            src/crawler.hpp \
            src/file_downloader.hpp \
            src/tcp_thread.hpp \
            src/tcp_connection.hpp \
-           src/master_node.hpp
+           src/master_node.hpp \
+           src/dictionary.h \
+           src/array-dictionary.h \
+           src/bsearch-dictionary.h
 
 TARGET = derp-engine
 

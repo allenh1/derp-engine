@@ -138,7 +138,11 @@ void crawler::run()
 				|| parser.getTitle().contains("301")
 				|| parser.getTitle().contains("302")
 				|| parser.getTitle().contains("406")
-				|| parser.getTitle().contains("403")) {
+				|| parser.getTitle().contains("403")
+			    || parser.getTitle().contains("page not found",
+											   Qt::CaseInsensitive)
+			    || parser.getTitle().contains("error",
+											  Qt::CaseInsensitive)) {
 			std::cout<<"Got 404. site: \""
 					 <<url.toStdString()<<"\""<<std::endl;
 			continue;

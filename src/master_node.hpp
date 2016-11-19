@@ -16,6 +16,7 @@
 
 /* File Includes */
 #include "tcp_thread.hpp"
+#include "bsearch-dictionary.h"
 /* #include "slave.hpp" */
 
 class tcp_thread;
@@ -41,7 +42,7 @@ public:
 	virtual ~master_node();
 
 	bool init();
-
+	
 	Q_SIGNAL void send_info(tcp_connection * receiver);
 
 	/* Callback functions for tcp connections */
@@ -54,10 +55,10 @@ public:
 	Q_SLOT void stop() { m_continue = false; }
 
 	Q_SIGNAL void send_html(tcp_connection *, QString *);
-private:
+private:	 
 	volatile bool m_continue = true;
 
-	QMap<QString,int> * results;
+	BinarySearchDictionary * results;
 	QString * _msg;
 	QString m_search;
 	QByteArray * _to_browser;
