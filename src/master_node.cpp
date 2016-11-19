@@ -120,6 +120,7 @@ bool master_node::search(QString text) {
 			+ query.value(1).toString() + ":::" +
 			query.value(2).toString();
 		int count=query.value(3).toInt();
+		if(tmp.contains(m_search, Qt::CaseInsensitive)) count+=100;
 		if(!results->value(tmp,0)) results->insert(tmp, count);
 		else results->insert(tmp, results->value(tmp,0)+count);
 	} return true;
