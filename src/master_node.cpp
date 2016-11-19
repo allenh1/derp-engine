@@ -186,7 +186,7 @@ void master_node::build_message(tcp_connection * p) {
 			*htmlDoc+=tableEntryEndText;
 		} *htmlDoc+=htmlEnd; collect+=*htmlDoc;
 	} else collect+=_to_browser->toStdString().c_str();
-	_to_browser->clear(); _msg->clear();
+	_to_browser->clear(); _msg->clear(); results->clear();
 	QString * p_msg = new QString(collect);
 	Q_EMIT(send_html(p, p_msg));
 }
