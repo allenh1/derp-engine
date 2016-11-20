@@ -8,7 +8,6 @@ SOURCES += src/main.cpp \
            src/tcp_thread.cpp \
            src/tcp_connection.cpp \
            src/master_node.cpp \
-           src/array-dictionary.cpp \
            src/bsearch-dictionary.cpp
            		   
 HEADERS += src/ParseHTML.hpp \ 
@@ -18,7 +17,6 @@ HEADERS += src/ParseHTML.hpp \
            src/tcp_connection.hpp \
            src/master_node.hpp \
            src/dictionary.h \
-           src/array-dictionary.h \
            src/bsearch-dictionary.h
 
 TARGET = derp-engine

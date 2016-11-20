@@ -5,11 +5,20 @@
 #include <iostream>
 #include <stdio.h>
 
-#include "array-dictionary.h"
+#include "dictionary.h"
 
 #define leftC(i) (2*(i)+1)
 #define rightC(i) (2*(i)+2)
 #define parent(i) (((i)-1)/2)
+
+struct ArrayDictionaryNode {
+  QString key;
+  int data;
+
+  bool operator== (ArrayDictionaryNode * a1);
+  bool operator== (QString str);
+  void operator= (ArrayDictionaryNode a1);
+};
 
 struct heap {
 private:
@@ -18,22 +27,23 @@ private:
   ArrayDictionaryNode * array;
 public:
   heap(int max);
+  ~heap();
   bool insert(QString key, int data);
   ArrayDictionaryNode removeMin();
   bool remove(QString key);
   ArrayDictionaryNode* getArray();
   int getSize();
   int find(QString key);
-  ~heap();
 };
 
-class BinarySearchDictionary : public ArrayDictionary {
+class BinarySearchDictionary : public Dictionary {
   // Add any member variables you need
   bool sorted;
   heap * h;
  public:
   // Constructor
   BinarySearchDictionary();
+  ~BinarySearchDictionary();
   
   bool addRecord(QString key, int record);
 

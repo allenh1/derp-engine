@@ -114,7 +114,8 @@ bool master_node::search(QString text) {
 		*_msg += "\n";
 		return false;
 	}	
-	
+	std::cerr<<"end query"<<std::endl;
+	if(results==NULL) results=new BinarySearchDictionary();
 	for (; query.next();) {
 		QString tmp=query.value(0).toString() + ":::"
 			+ query.value(1).toString() + ":::" +
