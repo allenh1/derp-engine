@@ -1,5 +1,5 @@
 QT += network sql core
-CONFIG += c++14 debug
+CONFIG += c++17 debug
 
 SOURCES += src/main.cpp \
            src/ParseHTML.cpp \
@@ -16,8 +16,10 @@ HEADERS += src/ParseHTML.hpp \
            src/tcp_thread.hpp \
            src/tcp_connection.hpp \
            src/master_node.hpp \
-           src/dictionary.h \
-           src/bsearch-dictionary.h
+           src/dictionary.hpp \
+           src/bsearch-dictionary.hpp
 
 TARGET = derp-engine
 
+QMAKE_CXXFLAGS_RELEASE += -O2
+QMAKE_CXXFLAGS_DEBUG += -Wextra -pedantic

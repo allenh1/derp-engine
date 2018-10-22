@@ -12,30 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef __FILEDOWNLOADER_HPP__
-#define __FILEDOWNLOADER_HPP__
-#include <QNetworkAccessManager>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QByteArray>
-#include <QObject>
+// Abstract class for a string dictionary
 
-class FileDownloader : public QObject
+#ifndef DICTIONARY_H
+#define DICTIONARY_H
+
+#include <QString>
+
+class Dictionary
 {
-  Q_OBJECT
-
 public:
-  explicit FileDownloader(QUrl imageUrl, QObject * parent = 0);
-  virtual ~FileDownloader();
-  QByteArray * downloadedData() const;
-  QString get_url() const;
+  // Add a record to the dictionary. Returns false if key already exists
+  virtual bool addRecord(QString key, int record) = 0;
 
-  Q_SIGNAL void downloaded();
+  // Removes one element from the table
+  virtual bool removeElement(QString key) = 0;
 
-private:
-  Q_SLOT void fileDownloaded(QNetworkReply * pReply);
-  QNetworkAccessManager m_WebCtrl;
-  QByteArray * m_DownloadedData;
-  QString m_url;
+  // Returns all the elements in the table as an array of strings.
+  // *n is the size of the table and it is returned by reference
+  virtual QString * keys(int * n) = 0;
 };
+
 #endif
