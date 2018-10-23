@@ -85,7 +85,7 @@ def test_ament_cppcheck(container, verbose=False):
         print(container.log)
         return 1
     container.clear_commands()
-    return True
+    return 0
 
 
 def test_ament_cpplint(container, verbose=False):
@@ -125,8 +125,8 @@ def main(argv):
     d = set_up_container()
     score = test_ament_uncrustify(d, args.fix_style)
     score += test_ament_copyright(d, args.add_missing_copyright)
-#    score += test_ament_cppcheck(d)
-#    score += test_ament_cpplint(d)
+    score += test_ament_cppcheck(d)
+    score += test_ament_cpplint(d)
     return score
 
 

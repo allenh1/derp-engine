@@ -51,7 +51,7 @@ bool tcp_thread::writeData(QByteArray data, tcp_connection * receiver)
   QDataStream out(&data, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_5_5);
 
-  QTcpSocket * to_receive = (QTcpSocket *) receiver->get_socket();
+  QTcpSocket * to_receive = static_cast<QTcpSocket *>(receiver->get_socket());
 
   connect(to_receive, &QAbstractSocket::disconnected,
     to_receive, &QObject::deleteLater);
@@ -136,7 +136,7 @@ void tcp_thread::sendMessage(QString msg, tcp_connection * request)
 
 void tcp_thread::disconnect_client(tcp_connection * client, QString * _p_msg)
 {
-  QTcpSocket * p = (QTcpSocket *) client->get_socket();
+  QTcpSocket * p = reinterpret_cast<QTcpSocket *>(client->get_socket());
   p->write(_p_msg->toUtf8()); delete _p_msg;
   p->disconnectFromHost(); delete client;
 }

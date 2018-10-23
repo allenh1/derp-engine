@@ -15,12 +15,13 @@
 #ifndef PARSEHTML_HPP_
 #define PARSEHTML_HPP_
 
-#include <iostream>
-#include <memory>
 #include <QString>
 #include <QRegExp>
 #include <QQueue>
 #include <QMap>
+
+#include <memory>
+#include <iostream>
 
 class ParseHTML
 {

@@ -14,6 +14,10 @@
 
 #include "crawler.hpp"
 
+#include <iostream>
+#include <memory>
+#include <utility>
+
 crawler::crawler(
   const QStack<QString> & _unexplored,
   const QSqlDatabase & _db,
@@ -70,7 +74,6 @@ bool crawler::discovered(const QString & url)
 
 bool crawler::check_content(const QString & url, const QString & content)
 {
-
   if (!m_db.open()) {
     std::cerr << "Error! Failed to open database connection!" << std::endl;
     return true;
@@ -94,7 +97,9 @@ bool crawler::send_url_to_db(QString url, QString title, QString text)
     std::cerr << "Error! Failed to open database connection!" << std::endl;
     return false;
   }
-  if (check_content(url, text)) {return false;}
+  if (check_content(url, text)) {
+    return false;
+  }
 
   QSqlQuery query(m_db);
   query.prepare("INSERT INTO websites(url, title, content) VALUES(?, ?, ?)");
@@ -137,8 +142,11 @@ void crawler::run()
     std::cout << std::endl << "\t*** Looped around! ***" << std::endl;
     /* remove the first unexplored url */
     QString url = m_unexplored.pop();
-    if (discovered(url)) {continue;}
-    m_saving_file = true; m_local_url[url] = url;
+    if (discovered(url)) {
+      continue;
+    }
+    m_saving_file = true;
+    m_local_url[url] = url;
     /* connect to the host */
     QNetworkAccessManager manager;
     QNetworkReply * response = manager.get(QNetworkRequest(QUrl(url)));
@@ -183,8 +191,9 @@ void crawler::run()
       std::cout << "Send db to db failed!" << std::endl;
     }
 
-    for (int x = 0; x < parser.getUrls().size(); ++x) {
-      QString a = parser.getUrls()[x];
+    const auto & urls = parser.getUrls();
+    for (int x = 0; x < urls.size(); ++x) {
+      QString a = urls[x];
       /* if not seen, enqueue */
       if (m_local_url.find(a) == m_local_url.end()) {
         if (a.contains("facebook.com") || a.contains("linkedin.com")) {
@@ -194,19 +203,22 @@ void crawler::run()
           std::cout << "URL was too lame (ty, Google)" << std::endl;
           continue;
         }
-        /* temporarily remove the http:// tag */
+        /* temporarily remove the http tag */
         QString prefix;
         if (a.contains("https://")) {
           prefix = "https://", a.replace("https://", "");
-        } else if (a.contains("http://")) {prefix = "http://", a.replace("http://", "");}
+        } else if (a.contains("http://")) {
+          prefix = "http://", a.replace("http://", "");
+        }
         /* check for a self-link */
         QStringList temp = a.split('/'); temp.removeDuplicates();
         QString toPush = prefix + temp[0];
         /* depth limit of 30 */
-        if (temp.size() > 30) {continue;}
+        if (temp.size() > 30) {
+          continue;
+        }
         for (int x = 1; x < temp.size(); toPush += "/" + temp[x++]) {
         }
-
         m_unexplored.push(toPush);
         std::cout << "Discovered[" << m_unexplored.size() - 1 <<
           "]: \"" << toPush.toStdString() << "\"" << std::endl;

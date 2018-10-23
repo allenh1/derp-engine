@@ -14,8 +14,8 @@
 
 // Abstract class for a string dictionary
 
-#ifndef DICTIONARY_H
-#define DICTIONARY_H
+#ifndef DICTIONARY_HPP_
+#define DICTIONARY_HPP_
 
 #include <QString>
 
@@ -33,4 +33,4 @@ public:
   virtual QString * keys(int * n) = 0;
 };
 
-#endif
+#endif  // DICTIONARY_HPP_

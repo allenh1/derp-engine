@@ -11,15 +11,14 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+#ifndef BSEARCH_DICTIONARY_HPP_
+#define BSEARCH_DICTIONARY_HPP_
 // Implementation of a dictionary using an array and binary search
 // The class inherits from ArrayDictionary
-#ifndef BSEARCH_DICTIONARY_HPP_
-#define BSEARCH_DICITONARY_HPP_
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 
 #include "dictionary.hpp"
 
@@ -53,7 +52,7 @@ private:
   ArrayDictionaryNode * array;
 
 public:
-  heap(int max);
+  explicit heap(int max);
   ~heap();
   bool insert(QString key, int data);
   ArrayDictionaryNode removeMin();

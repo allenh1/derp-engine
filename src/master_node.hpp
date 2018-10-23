@@ -12,21 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef __MASTER_NODE_HPP__
-#define __MASTER_NODE_HPP__
-#pragma once
+#ifndef MASTER_NODE_HPP_
+#define MASTER_NODE_HPP_
 
 /* Qt Includes */
 #include <QThread>
 #include <QtCore>
 #include <QStringList>
 #include <QString>
-#include <string>
-#include <iostream>
-#include <string.h>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QMap>
+
+#include <cstring>
+#include <string>
+#include <iostream>
 
 /* File Includes */
 #include "tcp_thread.hpp"
@@ -111,4 +111,4 @@ private:
 
   void build_message(tcp_connection *);
 };
-#endif
+#endif  // MASTER_NODE_HPP_

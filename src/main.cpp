@@ -13,6 +13,9 @@
 // limitations under the License.
 
 #include <QCoreApplication>
+
+#include <string>
+
 #include "crawler.hpp"
 #include "master_node.hpp"
 
@@ -20,19 +23,19 @@ QSqlDatabase setup_db()
 {
   std::cout << "Setting up database..." << std::endl;
   const char * user, * pwd, * dbb, * host, * port_string;
-  if ((user = getenv("DBUSR")) == NULL) {
+  if ((user = getenv("DBUSR")) == nullptr) {
     perror("getenv");
     throw std::invalid_argument("getenv on user failed");
-  } else if ((pwd = getenv("DBPASS")) == NULL) {
+  } else if ((pwd = getenv("DBPASS")) == nullptr) {
     perror("getenv");
     throw std::invalid_argument("getenv on pwd failed");
-  } else if ((dbb = getenv("DBNAME")) == NULL) {
+  } else if ((dbb = getenv("DBNAME")) == nullptr) {
     perror("getenv");
     throw std::invalid_argument("getenv on db name failed");
-  } else if ((host = getenv("DBHOST")) == NULL) {
+  } else if ((host = getenv("DBHOST")) == nullptr) {
     perror("getenv");
     throw std::invalid_argument("getenv on db host failed");
-  } else if ((port_string = getenv("DBPORT")) == NULL) {
+  } else if ((port_string = getenv("DBPORT")) == nullptr) {
     perror("getenv");
     throw std::invalid_argument("getenv on db host failed");
   }
@@ -50,7 +53,6 @@ int main(int argc, char ** argv)
 {
   QCoreApplication app(argc, argv);
   if (argc == 3 && !strcmp(argv[1], "--crawl")) {
-
     QStack<QString> urls; QSqlDatabase db = setup_db();
     urls.push(QString(argv[2]));
     crawler buddy(urls, db); buddy.init();

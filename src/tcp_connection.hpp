@@ -11,10 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+#ifndef TCP_CONNECTION_HPP_
+#define TCP_CONNECTION_HPP_
 
-#ifndef __TCP_CONNECITON_HPP__
-#define __TCP_CONNECTION_HPP__
-#pragma once
 #include <QtNetwork>
 #include <QObject>
 #include <QtCore>
@@ -29,7 +28,7 @@ public:
   explicit tcp_connection(
     QString & _hostname,
     QTcpSocket * _p_socket,
-    QObject * _p_parent = NULL
+    QObject * _p_parent = nullptr
   );
   virtual ~tcp_connection();
 
@@ -49,4 +48,4 @@ private:
   QString m_hostname;
   QTcpSocket * m_p_socket;
 };
-#endif
+#endif  // TCP_CONNECTION_HPP_

@@ -1,5 +1,5 @@
 QT += network sql core
-CONFIG += c++17 debug
+CONFIG += c++17 debug sanitizer sanitize_address
 
 SOURCES += src/main.cpp \
            src/ParseHTML.cpp \

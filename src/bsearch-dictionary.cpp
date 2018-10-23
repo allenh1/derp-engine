@@ -196,7 +196,7 @@ bool BinarySearchDictionary::removeElement(QString key)
 
 int BinarySearchDictionary::find(QString key)
 {
-  if (h == NULL) {h = new heap(20);}
+  if (h == nullptr) {h = new heap(20);}
   return h->find(key);
 }
 

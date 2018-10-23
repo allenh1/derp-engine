@@ -11,15 +11,16 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 #ifndef CRAWLER_HPP_
 #define CRAWLER_HPP_
+
 #include <QtNetwork>
 #include <QSqlRecord>
 #include <QSqlQuery>
 #include <QtCore>
 
 #include <unordered_map>
+#include <memory>
 
 #include "file_downloader.hpp"
 #include "ParseHTML.hpp"
@@ -34,7 +35,7 @@ struct hash<QString>
     return qHash(s);
   }
 };
-}
+}  // namespace std
 
 class crawler : public QObject
 {

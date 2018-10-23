@@ -14,7 +14,9 @@
 
 #include "ParseHTML.hpp"
 
+#include <iostream>
 #include <memory>
+#include <utility>
 
 ParseHTML::ParseHTML(const QString & _url, std::unique_ptr<QString> _html)
 {
@@ -165,10 +167,8 @@ QString ParseHTML::parseTag(QString _tag)
     }
   }
   // return "content" if content follows tag
-  if (_tag.indexOf("link") == 0) {
-    res = "skip";
-    return res;
-  } else if (
+  res = "skip";
+  const bool tag_check =
     _tag.indexOf("body") == 0 ||
     _tag.indexOf("div") == 0 ||
     _tag.indexOf("p") == 0 ||
@@ -182,11 +182,10 @@ QString ParseHTML::parseTag(QString _tag)
     _tag.indexOf("option") == 0 ||
     _tag.indexOf("span") == 0 ||
     _tag.indexOf("string") == 0 ||
-    _tag.indexOf("img") == 0)
-  {
+    _tag.indexOf("img") == 0;
+  if (tag_check) {
     res = "content";
-    return res;
-  } else {res = "skip";}
+  }
   return res;
 }
 

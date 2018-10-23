@@ -16,12 +16,12 @@
 #define TCP_THREAD_HPP_
 #include "tcp_connection.hpp"
 
-#include <iostream>
-
 #include <QDataStream>
 #include <QtNetwork>
 #include <QtCore>
 #include <QDebug>
+
+#include <iostream>
 
 class tcp_thread : public QObject
 {
@@ -30,7 +30,7 @@ class tcp_thread : public QObject
 public:
   explicit tcp_thread(
     const QString & _hostname, const quint16 & _port,
-    const bool & _master_mode = true, QObject * parent = NULL);
+    const bool & _master_mode = true, QObject * parent = nullptr);
   ~tcp_thread() { /** @todo This function is important, I suppose... **/}
 
   bool init();

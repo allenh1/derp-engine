@@ -14,6 +14,8 @@
 
 #include "master_node.hpp"
 
+#include <string>
+
 /**
  * Construct the master node for the timefuse-server.
  *
@@ -38,10 +40,6 @@ master_node::master_node(
 
 master_node::~master_node()
 {
-
-/**
-        * @todo free resources and halt threads
-        */
 }
 
 /**
@@ -88,7 +86,7 @@ void master_node::handle_search(QTcpSocket * p_socket, QString * text)
     if (!search(*text)) {
       std::cerr << "No results found!" << std::endl;
       _msg = new QString("ERROR: NO RESULTS FOUND\r\n");
-    }            // else _msg = new QString("OK\r\n");
+    }
   } catch (...) {
     _msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");
   }
@@ -114,7 +112,11 @@ bool master_node::search(QString text)
   }
   QSqlQuery query(m_db);
   QString txt =
-    "SELECT DISTINCT websites.url, websites.title, websites.content, website_keyword_relation.times_used FROM websites, keywords, website_keyword_relation WHERE websites.website_id=website_keyword_relation.website_id AND website_keyword_relation.keyword_id=keywords.keyword_id AND ( ";
+    "SELECT DISTINCT websites.url, websites.title, websites.content, "
+    "website_keyword_relation.times_used FROM websites, keywords, "
+    "website_keyword_relation WHERE websites.website_id="
+    "website_keyword_relation.website_id AND "
+    "website_keyword_relation.keyword_id=keywords.keyword_id AND ( ";
 
   QStringList words = text.split(' ');
   for (int i = 0; i < words.size(); i++) {
@@ -137,7 +139,7 @@ bool master_node::search(QString text)
     return false;
   }
   std::cerr << "end query" << std::endl;
-  if (results == NULL) {results = new BinarySearchDictionary();}
+  if (results == nullptr) {results = new BinarySearchDictionary();}
   for (; query.next(); ) {
     QString tmp = query.value(0).toString() + ":::" +
       query.value(1).toString() + ":::" +
@@ -158,19 +160,19 @@ bool master_node::search(QString text)
 QSqlDatabase master_node::setup_db()
 {
   const char * user, * pwd, * dbb, * host, * port_string;
-  if ((user = getenv("DBUSR")) == NULL) {
+  if ((user = getenv("DBUSR")) == nullptr) {
     perror("getenv");
     throw std::invalid_argument("getenv on user failed");
-  } else if ((pwd = getenv("DBPASS")) == NULL) {
+  } else if ((pwd = getenv("DBPASS")) == nullptr) {
     perror("getenv");
     throw std::invalid_argument("getenv on pwd failed");
-  } else if ((dbb = getenv("DBNAME")) == NULL) {
+  } else if ((dbb = getenv("DBNAME")) == nullptr) {
     perror("getenv");
     throw std::invalid_argument("getenv on db name failed");
-  } else if ((host = getenv("DBHOST")) == NULL) {
+  } else if ((host = getenv("DBHOST")) == nullptr) {
     perror("getenv");
     throw std::invalid_argument("getenv on db host failed");
-  } else if ((port_string = getenv("DBPORT")) == NULL) {
+  } else if ((port_string = getenv("DBPORT")) == nullptr) {
     perror("getenv");
     throw std::invalid_argument("getenv on db host failed");
   }
@@ -194,28 +196,38 @@ void master_node::build_message(tcp_connection * p)
   collect += ctype; collect += sp; collect += "text/html"; collect += crlf;
   collect += crlf;
 
-  QString * htmlDoc = new QString();
+  QString htmlDoc;
   QString c; c.setNum(results->size());
-  *htmlDoc += QString(htmlBegin) + "Derp-Engine Results: " + c +
+  htmlDoc += QString(htmlBegin) + "Derp-Engine Results: " + c +
     htmlEndHead + htmlLine;
 
   if (_msg->contains("ERROR")) {
-    *htmlDoc += htmlEnd; collect += *htmlDoc;
+    htmlDoc += htmlEnd;
+    collect += htmlDoc;
   } else if (c.toInt() > 0) {
-    int * n = new int();
-    QString * res = results->keys(n);
+    int n;
+    QString * res = results->keys(&n);
     for (int i = 0; i < c.toInt(); i++) {
       QStringList things = res[i].split(":::");
       if (things.size() < 3) {continue;}
-      *htmlDoc += tableEntryHyperLink; *htmlDoc += things.at(0);
-      *htmlDoc += tableEntryEndLink;
+      htmlDoc += tableEntryHyperLink;
+      htmlDoc += things.at(0);
+      htmlDoc += tableEntryEndLink;
       things.replace(1, things.at(1).trimmed());
-      if (things.at(1).size() > 0) {*htmlDoc += things.at(1);} else {*htmlDoc += m_search;}
-      *htmlDoc += tableEntryEndSummary; *htmlDoc += things.at(2);
-      *htmlDoc += tableEntryEndText;
+      if (things.at(1).size() > 0) {
+        htmlDoc += things.at(1);
+      } else {
+        htmlDoc += m_search;
+      }
+      htmlDoc += tableEntryEndSummary;
+      htmlDoc += things.at(2);
+      htmlDoc += tableEntryEndText;
     }
-    *htmlDoc += htmlEnd; collect += *htmlDoc; delete n;
-  } else {collect += _to_browser->toStdString().c_str();}
+    htmlDoc += htmlEnd;
+    collect += htmlDoc;
+  } else {
+    collect += _to_browser->toStdString().c_str();
+  }
   _to_browser->clear(); _msg->clear(); results->clear();
   QString * p_msg = new QString(collect);
   Q_EMIT (send_html(p, p_msg));
