@@ -5,7 +5,7 @@ services: docker
 python:
   - "3.5"
 before_install:
-  - sudo pip install --upgrade pip
+  - pip install --upgrade pip
   - pip install setuptools
   - pip install docker
 # command to install dependencies
@@ -16,3 +16,4 @@ install:
 # command to run tests
 script:
   - python ./test.py
+

@@ -103,6 +103,21 @@ def test_ament_cpplint(container, verbose=False):
     return 0
 
 
+def test_compilation(container, verbose=False):
+    container.add_bash_command('cd %s' % repo_location)
+    container.add_bash_command('qmake -qt5')
+    container.add_bash_command('make -j$(nproc)')
+    try:
+        container.run(show_cmd=verbose)
+        if verbose:
+            print(container.log)
+    except ContainerError:
+        print(container.log)
+        return 1
+    container.clear_commands()
+    return 0
+
+
 def main(argv):
     argv = argv[1:]
     parser = argparse.ArgumentParser('ASW Docker Test Runner')
@@ -127,6 +142,7 @@ def main(argv):
     score += test_ament_copyright(d, args.add_missing_copyright)
     score += test_ament_cppcheck(d)
     score += test_ament_cpplint(d)
+    score += test_compilation(d)
     return score
 
 
