@@ -27,11 +27,12 @@
 #include <cstring>
 #include <string>
 #include <iostream>
+#include <memory>
 
 /* File Includes */
 #include "tcp_thread.hpp"
 #include "bsearch-dictionary.hpp"
-/* #include "slave.hpp" */
+#include "QString_hash.hpp"
 
 class tcp_thread;
 
@@ -64,7 +65,7 @@ public:
   /* Callback functions for tcp connections */
   Q_SLOT void handle_search(QTcpSocket * p_socket, QString * text);
   Q_SLOT void handle_home_page(QTcpSocket * p_socket);
-  Q_SLOT bool search(QString text);
+  Q_SLOT bool search(const QString & text);
 
   Q_SLOT QSqlDatabase setup_db();
 
@@ -75,16 +76,16 @@ public:
 private:
   volatile bool m_continue = true;
 
-  BinarySearchDictionary * results;
-  QString * _msg;
+  std::unique_ptr<BinarySearchDictionary> results;
+  std::unique_ptr<QString> _msg;
   QString m_search;
-  QByteArray * _to_browser;
+  std::unique_ptr<QByteArray> _to_browser;
 
   QString m_hostname;
   quint16 m_port;
   QSqlDatabase m_db;
 
-  tcp_thread * m_p_tcp_thread;
+  std::unique_ptr<tcp_thread> m_p_tcp_thread;
 
   /* code that writes an html page to browser a directory  */
   const char * htmlBegin = "<!DOCTYPE html><header>"

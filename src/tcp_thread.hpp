@@ -22,6 +22,7 @@
 #include <QDebug>
 
 #include <iostream>
+#include <memory>
 
 class tcp_thread : public QObject
 {
@@ -40,7 +41,10 @@ public:
   Q_SLOT void readFromClient();
   Q_SLOT void sendMessage(QString, tcp_connection * request);
   Q_SLOT void acceptConnection();
-  Q_SLOT void stop() {m_continue = false;}
+  Q_SLOT void stop()
+  {
+    m_continue = false;
+  }
   Q_SLOT void disconnect_client(tcp_connection *, QString *);
 
   Q_SIGNAL void readIt(QTcpSocket *);
@@ -49,13 +53,14 @@ public:
   Q_SIGNAL void got_home_page(QTcpSocket *);
   Q_SIGNAL void got_search(QTcpSocket *, QString *);
 
-  Q_SLOT void echoReceived(QString);
+  Q_SLOT void echoReceived(const QString &);
 
-  const QTcpServer * getServer() {return m_pServer;}
+  const std::unique_ptr<QTcpServer> & getServer()
+  {
+    return m_pServer;
+  }
 
 private:
-  QTcpServer * m_pServer;
-
   volatile bool m_continue = true;
 
   QString m_hostname;
@@ -63,7 +68,7 @@ private:
   quint16 m_blockSize;
   bool m_master_mode;
 
-  QQueue<tcp_connection> * m_pTcpMessages;
-  QList<tcp_connection *> m_tcp_connections;
+  std::unique_ptr<QQueue<tcp_connection>> m_pTcpMessages;
+  std::unique_ptr<QTcpServer> m_pServer;
 };
 #endif  // TCP_THREAD_HPP_

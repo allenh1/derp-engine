@@ -185,9 +185,10 @@ void crawler::run()
       continue;
     }
 
-    if (!send_url_to_db(url, parser.getTitle(),
-      parser.getContent().left(500)))
-    {
+    std::unique_ptr content{parser.getContent()};
+    const QString & title{parser.getTitle()};
+
+    if (!send_url_to_db(url, title, content->left(500))) {
       std::cout << "Send db to db failed!" << std::endl;
     }
 
@@ -225,10 +226,9 @@ void crawler::run()
       }
     }
     QMap<QString, int>::const_iterator x;
-    for (x = parser.getKeywords().begin();
-      x != parser.getKeywords().end(); ++x)
-    {
-      add_keyword_to_db(url, x.key(), x.value());
+    auto keywords{parser.getKeywords()};
+    for (auto[key, val] : *keywords) {
+      add_keyword_to_db(url, key, val);
     }
 
     std::cout << std::endl << "\t******** Leaving Parse! ********" <<

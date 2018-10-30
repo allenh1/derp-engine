@@ -13,13 +13,14 @@
 // limitations under the License.
 
 #include "tcp_thread.hpp"
-/* @todo #include "User.h" */
+
+#include <memory>
 
 tcp_thread::tcp_thread(
-  const QString & _hostname,               /*  hostname for TCP thread construction  */
-  const quint16 & _port,                   /* port on which we construct this server */
-  const bool & _master_mode,               /*         are we in master mode?         */
-  QObject * parent                         /*         parent of this QObject         */
+  const QString & _hostname,  /*  hostname for TCP thread construction  */
+  const quint16 & _port,      /* port on which we construct this server */
+  const bool & _master_mode,  /*         are we in master mode?         */
+  QObject * parent            /*         parent of this QObject         */
 )
 : QObject(parent)
 {
@@ -27,22 +28,26 @@ tcp_thread::tcp_thread(
   m_hostname = _hostname;
   m_port = _port;
   m_master_mode = true;
-  m_pServer = new QTcpServer(this);
-  m_pTcpMessages = new QQueue<tcp_connection>();
+  m_pServer = std::make_unique<QTcpServer>(this);
+  m_pTcpMessages = std::make_unique<QQueue<tcp_connection>>();
 }
 
 bool tcp_thread::init()
 {
+  if (!m_pServer) {
+    return false;
+  }
   /* forward accepted connections to our accept connection */
-  connect(m_pServer, &QTcpServer::newConnection,
+  connect(m_pServer.get(), &QTcpServer::newConnection,
     this, &tcp_thread::acceptConnection);
 
   /* listen for any host on our port */
-  if (m_pServer->listen(QHostAddress::Any, m_port)) {
-    QString ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
-    std::cout << tr("The server is running on\n\nIP: %1\nPort: %2\n")
-      .arg(ipAddress).arg(m_pServer->serverPort()).toStdString() << std::endl;
-  } else {return false;}
+  if (!m_pServer->listen(QHostAddress::Any, m_port)) {
+    return false;
+  }
+  QString ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
+  std::cout << tr("The server is running on\n\nIP: %1\nPort: %2\n")
+    .arg(ipAddress).arg(m_pServer->serverPort()).toStdString() << std::endl;
   return true;
 }
 
@@ -87,7 +92,7 @@ void tcp_thread::acceptConnection()
   }
 }
 
-void tcp_thread::echoReceived(QString msg)
+void tcp_thread::echoReceived(const QString & msg)
 {
   std::cout << "I read \"" << msg.toStdString() << "\" from the client!" << std::endl;
 }
@@ -136,6 +141,8 @@ void tcp_thread::sendMessage(QString msg, tcp_connection * request)
 void tcp_thread::disconnect_client(tcp_connection * client, QString * _p_msg)
 {
   QTcpSocket * p = const_cast<QTcpSocket *>(client->get_socket());
-  p->write(_p_msg->toUtf8()); delete _p_msg;
-  p->disconnectFromHost(); delete client;
+  p->write(_p_msg->toUtf8());
+  delete _p_msg;
+  p->disconnectFromHost();
+  delete client;
 }

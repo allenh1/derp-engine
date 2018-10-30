@@ -24,18 +24,7 @@
 
 #include "file_downloader.hpp"
 #include "ParseHTML.hpp"
-
-namespace std
-{
-template<>
-struct hash<QString>
-{
-  std::size_t operator()(const QString & s) const noexcept
-  {
-    return qHash(s);
-  }
-};
-}  // namespace std
+#include "QString_hash.hpp"
 
 class crawler : public QObject
 {

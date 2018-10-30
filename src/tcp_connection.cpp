@@ -40,8 +40,8 @@ tcp_connection::tcp_connection(
 tcp_connection::~tcp_connection()
 {
   /**
-       * @todo "Is this all I have to do?"
-       */
+   * @todo "Is this all I have to do?"
+   */
 }
 
 /**

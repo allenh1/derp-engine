@@ -12,27 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Abstract class for a string dictionary
-
-#ifndef DICTIONARY_HPP_
-#define DICTIONARY_HPP_
-
+#ifndef QSTRING_HASH_HPP_
+#define QSTRING_HASH_HPP_
 #include <QString>
 
-#include <memory>
-
-class Dictionary
+namespace std
 {
-public:
-  // Add a record to the dictionary. Returns false if key already exists
-  virtual bool add_record(const QString & key, int record) = 0;
-
-  // Removes one element from the table
-  virtual bool remove_element(const QString & key) = 0;
-
-  // Returns all the elements in the table as an array of strings.
-  // *n is the size of the table and it is returned by reference
-  virtual std::unique_ptr<QString[]> keys(size_t * n) = 0;
+template<>
+struct hash<QString>
+{
+  std::size_t operator()(const QString & s) const noexcept
+  {
+    return qHash(s);
+  }
 };
-
-#endif  // DICTIONARY_HPP_
+}  // namespace std
+#endif  // QSTRING_HASH_HPP_

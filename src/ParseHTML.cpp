@@ -16,12 +16,16 @@
 
 #include <iostream>
 #include <memory>
+#include <unordered_map>
 #include <utility>
+
+#include "scope_exit.hpp"
 
 ParseHTML::ParseHTML(const QString & _url, std::unique_ptr<QString> _html)
 {
   m_html = std::move(_html);
   m_content = std::make_unique<QString>();
+  m_keywords = std::make_unique<std::unordered_map<QString, int>>();
   m_url = _url;
 }
 
@@ -73,13 +77,21 @@ bool ParseHTML::operator()()
         }
         break;
       case TITLE:
-        if ((*m_html)[i] == '<') {state = OPEN;} else if ((*m_html)[i] == '>') {
+        if ((*m_html)[i] == '<') {
+          state = OPEN;
+        } else if ((*m_html)[i] == '>') {
           state = START;
           m_title.clear();
-        } else {m_title += (*m_html)[i];}
+        } else {
+          m_title += (*m_html)[i];
+        }
         break;
       case CONTENT:
-        if ((*m_html)[i] == '<') {state = OPEN;} else {(*m_content) += (*m_html)[i];}
+        if ((*m_html)[i] == '<') {
+          state = OPEN;
+        } else {
+          (*m_content) += (*m_html)[i];
+        }
         break;
     }
   }
@@ -87,65 +99,69 @@ bool ParseHTML::operator()()
 
   parseContent();
   // returns false if no content is found
-  if (m_content->size() == 0 && m_urls.size() == 0) {return false;}
-  return true;
+  return !(m_content->size() == 0 && m_urls.size() == 0);
 }
 
 const QString & ParseHTML::getTitle() {return m_title;}
-const QString & ParseHTML::getHtml() {return *m_html;}
-const QString & ParseHTML::getContent() {return *m_content;}
+const std::unique_ptr<QString> & ParseHTML::getHtml() {return m_html;}
+std::unique_ptr<QString> ParseHTML::getContent() {return std::move(m_content);}
 const QQueue<QString> & ParseHTML::getUrls() {return m_urls;}
-const QMap<QString, int> & ParseHTML::getKeywords() {return m_keywords;}
-
-bool ParseHTML::isUrl(QString _url)
+std::unique_ptr<std::unordered_map<QString, int>> ParseHTML::getKeywords()
 {
-  if (_url.contains("mailto:") || _url.contains(".a") || _url.contains(".cpio") ||
-    _url.contains(".shar") || _url.contains(".LBR") ||
-    _url.contains(".iso") || _url.contains(".lbr") || _url.contains(".mar") ||
-    _url.contains(".bz2") || _url.contains(".F") || _url.contains(".gz") ||
-    _url.contains(".lz") || _url.contains(".rz") || _url.contains(".sfark") ||
-    _url.contains(".sz") || _url.contains(".?") || _url.contains(".x") ||
-    _url.contains(".z") || _url.contains(".Z") || _url.contains(".t") ||
-    _url.contains(".u") || _url.contains(".w"))
-  {
-    return false;
-  }
-  return true;
+  return std::move(m_keywords);
+}
+
+bool ParseHTML::isUrl(const QString & _url) const
+{
+  return !(_url.contains("mailto:") || _url.contains(".a") || _url.contains(".cpio") ||
+         _url.contains(".shar") || _url.contains(".LBR") ||
+         _url.contains(".iso") || _url.contains(".lbr") || _url.contains(".mar") ||
+         _url.contains(".bz2") || _url.contains(".F") || _url.contains(".gz") ||
+         _url.contains(".lz") || _url.contains(".rz") || _url.contains(".sfark") ||
+         _url.contains(".sz") || _url.contains(".?") || _url.contains(".x") ||
+         _url.contains(".z") || _url.contains(".Z") || _url.contains(".t") ||
+         _url.contains(".u") || _url.contains(".w"));
 }
 
 void ParseHTML::parseUrl(QString _url)
 {
   // call isUrl then parse if it is a url
-  if (!isUrl(_url)) {return;}
-  if (m_url.contains(_url)) {return;}
-  if (!_url.contains("http://") && !_url.contains("https://")) {
-    if (_url[0] == '/' && m_url[m_url.size() - 1] == '/') {
-      _url.remove(0, 1);
-    }
-    if ((_url[0] == '/' && m_url[m_url.size() - 1] != '/') ||
-      (_url[0] != '/' && m_url[m_url.size() - 1] == '/'))
-    {
-      _url = m_url + _url;
-    } else {
-      _url = m_url + '/' + _url;
-    }
+  if (!isUrl(_url)) {
+    return;
+  } else if (m_url.contains(_url)) {
+    return;
   }
-  m_urls.enqueue(_url);
+  auto enqueue_at_exit = make_scope_exit([this, &_url]() {
+        m_urls.enqueue(std::move(_url));
+      });
+  if (_url.contains("http://") || _url.contains("https://")) {
+    return;  // _url is still enqueued
+  }
+  if (_url[0] == '/' && m_url[m_url.size() - 1] == '/') {
+    _url.remove(0, 1);
+  }
+  if ((_url[0] == '/' && m_url[m_url.size() - 1] != '/') ||
+    (_url[0] != '/' && m_url[m_url.size() - 1] == '/'))
+  {
+    _url = m_url + _url;
+  } else {
+    _url = m_url + '/' + _url;
+  }
 }
 
 QString ParseHTML::parseTag(QString _tag)
 {
   // call parseUrl() if href found
-  int index = _tag.indexOf("href=");
+  const int index = _tag.indexOf("href=");
   if (index != -1) {
-    QString temp = "";
+    QString temp;
     for (int i = index + 6; _tag[i] != '"' &&
       _tag[i] != '\'' &&
       (i - (index + 6) < 500); i++)
     {
       temp += _tag[i];
     }
-    parseUrl(temp);
+    parseUrl(std::move(temp));
   }
 
   // return "title" if title follows tag
@@ -215,31 +231,32 @@ void ParseHTML::parseContent()
   m_content->replace("]", ""); m_content->replace("[", "");
   m_content->replace("_", ""); m_content->replace("|", "");
 
-  QString word = "";
+  auto word{std::make_unique<QString>()};
   enum {WHITE, LETTER} state; state = LETTER;
   for (int i = 0; i < m_content->size(); i++) {
     switch (state) {
       case LETTER:
         if ((*m_content)[i] == ' ') {
           state = WHITE;
-          word = word.trimmed();
-          if (word.size() == 0) {
+          *word = word->trimmed();
+          if (word->size() == 0) {
             continue;
           }
-          if (!m_keywords.value(word)) {
-            m_keywords.insert(word, 1);
+          const auto & it = m_keywords->find(*word);
+          if (it == m_keywords->end()) {
+            m_keywords->insert({*word, 1});
           } else {
-            m_keywords.insert(word, m_keywords.value(word) + 1);
+            m_keywords->insert({*word, it->second + 1});
           }
-          word.clear();
+          word = std::make_unique<QString>();
         } else {
-          word += (*m_content)[i].toLatin1();
+          *word += (*m_content)[i];
         }
         break;
       case WHITE:
         if ((*m_content)[i] != ' ') {
           state = LETTER;
-          word += (*m_content)[i].toLatin1();
+          *word += (*m_content)[i];
         } else {
           m_content->remove(i, 1);
           i--;
@@ -247,7 +264,7 @@ void ParseHTML::parseContent()
         break;
     }
   }
-  m_content = std::make_unique<QString>(m_content->toLatin1());
+  m_content = std::make_unique<QString>(m_content->toUtf8());
   m_content->replace("?", "");
   (*m_content) = m_content->trimmed();
   m_content->resize(m_content->size());

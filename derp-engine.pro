@@ -23,3 +23,4 @@ TARGET = derp-engine
 
 QMAKE_CXXFLAGS_RELEASE += -O2
 QMAKE_CXXFLAGS_DEBUG += -Wextra -pedantic
+QMAKE_CXXFLAGS += -std=c++17

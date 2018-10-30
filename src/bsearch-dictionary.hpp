@@ -15,10 +15,10 @@
 #define BSEARCH_DICTIONARY_HPP_
 // Implementation of a dictionary using an array and binary search
 // The class inherits from ArrayDictionary
-#include <cstdlib>
 #include <string>
 #include <iostream>
-#include <cstdio>
+#include <memory>
+#include <utility>
 
 #include "dictionary.hpp"
 
@@ -64,16 +64,12 @@ public:
 
 class BinarySearchDictionary : public Dictionary
 {
-  // Add any member variables you need
-  bool sorted;
-  heap * h;
-
 public:
   // Constructor
   BinarySearchDictionary();
   ~BinarySearchDictionary();
 
-  bool addRecord(QString key, int record);
+  bool add_record(const QString & key, int record) override;
 
   // Sort array using heap sort.
   void sort();
@@ -81,14 +77,22 @@ public:
   int find(QString key);
 
   // Removes one element from the table
-  bool removeElement(QString key);
+  bool remove_element(const QString & key) override;
 
   // Returns all the elements in the table as an array of strings.
   // *n is the size of the table and it is returned by reference
-  QString * keys(int * n);
+  std::unique_ptr<QString[]> keys(size_t * n) override;
 
   // Add other methods you may need
-  int size() {return h->getSize();}
+  size_t size()
+  {
+    return h->getSize();
+  }
   void clear();
+
+private:
+  // Add any member variables you need
+  bool sorted;
+  std::unique_ptr<heap> h;
 };
 #endif  // BSEARCH_DICTIONARY_HPP_

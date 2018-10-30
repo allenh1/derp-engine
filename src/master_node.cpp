@@ -15,6 +15,10 @@
 #include "master_node.hpp"
 
 #include <string>
+#include <memory>
+#include <utility>
+
+#include "scope_exit.hpp"
 
 /**
  * Construct the master node for the timefuse-server.
@@ -33,9 +37,9 @@ master_node::master_node(
   m_hostname(_hostname),
   m_port(_port)
 {
-  _to_browser = new QByteArray("");
-  results = new BinarySearchDictionary();
-  _msg = new QString("");
+  _to_browser = std::make_unique<QByteArray>();
+  results = std::make_unique<BinarySearchDictionary>();
+  _msg = std::make_unique<QString>();
 }
 
 master_node::~master_node()
@@ -59,19 +63,22 @@ bool master_node::init()
 {
   std::cout << "Initializing master thread..." << std::endl;
   /* construct the tcp_thread */
-  m_p_tcp_thread = new tcp_thread(m_hostname, m_port);
+  m_p_tcp_thread = std::make_unique<tcp_thread>(m_hostname, m_port);
   m_p_tcp_thread->init();
 
   m_db = setup_db();
 
-  connect(m_p_tcp_thread, &tcp_thread::got_search,
+  connect(
+    m_p_tcp_thread.get(), &tcp_thread::got_search,
     this, &master_node::handle_search,
     Qt::DirectConnection);
-  connect(m_p_tcp_thread, &tcp_thread::got_home_page,
+  connect(
+    m_p_tcp_thread.get(), &tcp_thread::got_home_page,
     this, &master_node::handle_home_page,
     Qt::DirectConnection);
-  connect(this, &master_node::send_html,
-    m_p_tcp_thread, &tcp_thread::disconnect_client,
+  connect(
+    this, &master_node::send_html,
+    m_p_tcp_thread.get(), &tcp_thread::disconnect_client,
     Qt::DirectConnection);
   return true;
 }
@@ -79,16 +86,15 @@ bool master_node::init()
 
 void master_node::handle_search(QTcpSocket * p_socket, QString * text)
 {
-  QString host = p_socket->peerName();
-  tcp_connection * client = new tcp_connection(host, p_socket);
-
+  QString host{p_socket->peerName()};
+  auto client{new tcp_connection(host, p_socket)};
   try {
     if (!search(*text)) {
       std::cerr << "No results found!" << std::endl;
-      _msg = new QString("ERROR: NO RESULTS FOUND\r\n");
+      _msg = std::make_unique<QString>("ERROR: NO RESULTS FOUND\r\n");
     }
   } catch (...) {
-    _msg = new QString("ERROR: DB COMMUNICATION FAILED\r\n");
+    _msg = std::make_unique<QString>("ERROR: DB COMMUNICATION FAILED\r\n");
   }
   build_message(client);
 }
@@ -96,33 +102,42 @@ void master_node::handle_search(QTcpSocket * p_socket, QString * text)
 void master_node::handle_home_page(QTcpSocket * p_socket)
 {
   QString host = p_socket->peerName();
-  tcp_connection * client = new tcp_connection(host, p_socket);
-  QString home = "src/derp-engine.html"; QFile page(home);
-  if (!page.open(QIODevice::ReadOnly)) {std::cerr << "*shrugs*" << std::endl;}
-  QByteArray all = page.readAll(); (*_to_browser) += all;
+  auto client = new tcp_connection(host, p_socket);
+  QString home = "src/derp-engine.html";
+  QFile page(home);
+  if (!page.open(QIODevice::ReadOnly)) {
+    std::cerr << "*shrugs*" << std::endl;
+  }
+  QByteArray all = page.readAll();
+  (*_to_browser) += all;
   build_message(client);
 }
 
-bool master_node::search(QString text)
+bool master_node::search(const QString & text)
 {
   m_search = text;
   if (!m_db.open()) {
     std::cerr << "Error! Failed to open database connection!" << std::endl;
     return false;
   }
-  QSqlQuery query(m_db);
-  QString txt =
+  QSqlQuery query{m_db};
+  QString txt{
     "SELECT DISTINCT websites.url, websites.title, websites.content, "
     "website_keyword_relation.times_used FROM websites, keywords, "
     "website_keyword_relation WHERE websites.website_id="
     "website_keyword_relation.website_id AND "
-    "website_keyword_relation.keyword_id=keywords.keyword_id AND ( ";
-
+    "website_keyword_relation.keyword_id=keywords.keyword_id AND ( "
+  };
   QStringList words = text.split(' ');
-  for (int i = 0; i < words.size(); i++) {
+  for (int i{0}; i < words.size(); ++i) {
+    /* TODO(allenh1): what is going on in here? */
     words[i] = words[i].trimmed();
-    if (words[i].size() == 0) {continue;}
-    if (i != 0) {txt += " OR ";}
+    if (words[i].size() == 0) {
+      continue;
+    }
+    if (i != 0) {
+      txt += " OR ";
+    }
     txt += "keywords.keyword='" + words[i] + "' ";
   }
   txt += ") ORDER BY website_keyword_relation.times_used DESC";
@@ -139,19 +154,25 @@ bool master_node::search(QString text)
     return false;
   }
   std::cerr << "end query" << std::endl;
-  if (results == nullptr) {results = new BinarySearchDictionary();}
+  results = std::make_unique<BinarySearchDictionary>();
   for (; query.next(); ) {
     QString tmp = query.value(0).toString() + ":::" +
       query.value(1).toString() + ":::" +
       query.value(2).toString();
     int count = query.value(3).toInt();
     if (query.value(1).toString().contains(m_search,
-      Qt::CaseInsensitive)) {count += 100;}
-    if (results->find(tmp) < 0) {results->addRecord(tmp, count);} else {
-      results->addRecord(tmp, results->find(tmp) + count);
+      Qt::CaseInsensitive))
+    {
+      count += 100;
+    }
+    if (results->find(tmp) < 0) {
+      results->add_record(tmp, count);
+    } else {
+      results->add_record(tmp, results->find(tmp) + count);
     }
   }
-  results->sort(); return true;
+  results->sort();
+  return true;
 }
 
 /**
@@ -189,27 +210,33 @@ QSqlDatabase master_node::setup_db()
 void master_node::build_message(tcp_connection * p)
 {
   std::cout << "building message" << std::endl;
-  QString collect = "";
-  collect += http; collect += sp; collect += "200 OK"; collect += sp;
-  collect += "Document"; collect += sp; collect += "follows"; collect += crlf;
-  collect += server; collect += sp; collect += s_name; collect += crlf;
-  collect += ctype; collect += sp; collect += "text/html"; collect += crlf;
-  collect += crlf;
-
-  QString htmlDoc;
+  QString collect{QString(http) + sp + "200 OK" + sp + "Document" + sp + "follows" + crlf +
+    server + sp + s_name + crlf + ctype + sp + "text/html" + crlf + crlf};
   QString c; c.setNum(results->size());
-  htmlDoc += QString(htmlBegin) + "Derp-Engine Results: " + c +
-    htmlEndHead + htmlLine;
+  QString htmlDoc{QString(htmlBegin) + "Derp-Engine Results: " + c + htmlEndHead + htmlLine};
+  /* this returns the message, and will run whenever this scope is exited */
+  auto at_exit{make_scope_exit([this, &collect, &p]() {
+        _to_browser->clear();
+        _msg->clear();
+        QString * p_msg = new QString(collect);
+        Q_EMIT (send_html(p, p_msg));
+      })};
 
   if (_msg->contains("ERROR")) {
     htmlDoc += htmlEnd;
     collect += htmlDoc;
-  } else if (c.toInt() > 0) {
-    int n;
-    QString * res = results->keys(&n);
-    for (int i = 0; i < c.toInt(); i++) {
-      QStringList things = res[i].split(":::");
-      if (things.size() < 3) {continue;}
+    return;
+  } else if (results->size() > 0) {
+    size_t n;
+    std::cout << "results: " << results->size() << std::endl;
+    auto res = std::move(results->keys(&n));
+    for (size_t x{0}; x < n; ++x) {
+      QStringList things = res[x].split(":::");
+      if (things.size() < 3) {
+        std::cerr << "ERROR: things.size() < 3" << std::endl;
+        std::cerr << res[x].toStdString() << std::endl;
+        continue;
+      }
       htmlDoc += tableEntryHyperLink;
       htmlDoc += things.at(0);
       htmlDoc += tableEntryEndLink;
@@ -225,10 +252,6 @@ void master_node::build_message(tcp_connection * p)
     }
     htmlDoc += htmlEnd;
     collect += htmlDoc;
-  } else {
-    collect += _to_browser->toStdString().c_str();
   }
-  _to_browser->clear(); _msg->clear(); results->clear();
-  QString * p_msg = new QString(collect);
-  Q_EMIT (send_html(p, p_msg));
+  collect += _to_browser->toStdString().c_str();
 }

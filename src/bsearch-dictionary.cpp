@@ -16,6 +16,9 @@
 // It will inherit from the ArrayDictionary
 #include "bsearch-dictionary.hpp"
 
+#include <memory>
+#include <utility>
+
 /*----------------------- array node ----------------------*/
 bool ArrayDictionaryNode::operator==(ArrayDictionaryNode * a1)
 {
@@ -177,18 +180,18 @@ int heap::find(QString key)
 BinarySearchDictionary::BinarySearchDictionary()
 {
   sorted = false;
-  h = new heap(20);
+  h = std::make_unique<heap>(20);
 }
 
-BinarySearchDictionary::~BinarySearchDictionary() {delete h;}
+BinarySearchDictionary::~BinarySearchDictionary() {}
 
-bool BinarySearchDictionary::addRecord(QString key, int record)
+bool BinarySearchDictionary::add_record(const QString & key, int record)
 {
   sorted = false;
   return h->insert(key, record);
 }
 
-bool BinarySearchDictionary::removeElement(QString key)
+bool BinarySearchDictionary::remove_element(const QString & key)
 {
   sorted = false;
   return h->remove(key);
@@ -196,15 +199,17 @@ bool BinarySearchDictionary::removeElement(QString key)
 
 int BinarySearchDictionary::find(QString key)
 {
-  if (h == nullptr) {h = new heap(20);}
+  if (h == nullptr) {
+    h = std::make_unique<heap>(20);
+  }
   return h->find(key);
 }
 
-QString * BinarySearchDictionary::keys(int * n)
+std::unique_ptr<QString[]> BinarySearchDictionary::keys(size_t * n)
 {
   *n = h->getSize();
-  QString * things = new QString[*n];
-  for (int i = (*n - 1); i > -1; i--) {
+  auto things = std::make_unique<QString[]>(*n);
+  for (size_t i{(*n - 1)}; i-- > 0; ) {
     things[i] = h->removeMin().key;
   }
   return things;
@@ -213,23 +218,23 @@ QString * BinarySearchDictionary::keys(int * n)
 // Sort array using heap sort
 void BinarySearchDictionary::sort()
 {
-  // Add your implementation here
-  int s = h->getSize();
-  ArrayDictionaryNode * a = new ArrayDictionaryNode[s];
-  for (int i = 0; i < s; i++) {
+  size_t s = h->getSize();
+  auto a = std::make_unique<ArrayDictionaryNode[]>(s);
+  for (size_t i{0}; i < s; ++i) {
     a[i] = h->removeMin();
-    std::cerr << a[i].data << std::endl;
   }
-  for (int i = 0; i < s; i++) {
+  for (size_t i{0}; i < s; ++i) {
     h->insert(a[i].key, a[i].data);
   }
 }
 
 void BinarySearchDictionary::clear()
 {
-  if (h->getSize() == 0) {return;}
-  int n = h->getSize();
-  for (int i = 0; i < n; i++) {
+  if (h->getSize() == 0) {
+    return;
+  }
+  size_t n = h->getSize();
+  for (; n-- > 0; ) {
     h->removeMin();
   }
 }

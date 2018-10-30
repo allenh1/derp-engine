@@ -18,10 +18,12 @@
 #include <QString>
 #include <QRegExp>
 #include <QQueue>
-#include <QMap>
 
 #include <memory>
 #include <iostream>
+#include <unordered_map>
+
+#include "QString_hash.hpp"
 
 class ParseHTML
 {
@@ -30,10 +32,10 @@ public:
   virtual ~ParseHTML();
   bool operator()();
 
-  const QMap<QString, int> & getKeywords();
+  std::unique_ptr<std::unordered_map<QString, int>> getKeywords();
   const QQueue<QString> & getUrls();
-  const QString & getContent();
-  const QString & getHtml();
+  std::unique_ptr<QString> getContent();
+  const std::unique_ptr<QString> & getHtml();
   const QString & getTitle();
 
 private:
@@ -42,9 +44,9 @@ private:
   QString m_title;
   std::unique_ptr<QString> m_content;
   QQueue<QString> m_urls;
-  QMap<QString, int> m_keywords;
+  std::unique_ptr<std::unordered_map<QString, int>> m_keywords;
 
-  bool isUrl(QString _url);
+  bool isUrl(const QString & _url) const;
   QString parseTag(QString _tag);
   void parseUrl(QString _url);
   void parseContent();
