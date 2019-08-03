@@ -39,7 +39,7 @@ def set_up_container():
 
 def test_ament_uncrustify(container, auto_fix=False, verbose=False):
     container.add_bash_command('cd %s' % repo_location)
-    container.add_bash_command('source /opt/ros/bouncy/setup.bash')
+    container.add_bash_command('source /opt/ros/dashing/setup.bash')
     fix = ''
     if auto_fix:
         fix = "--reformat "
@@ -57,7 +57,7 @@ def test_ament_uncrustify(container, auto_fix=False, verbose=False):
 
 def test_ament_copyright(container, auto_fix=False, verbose=False):
     container.add_bash_command('cd %s' % repo_location)
-    container.add_bash_command('source /opt/ros/bouncy/setup.bash')
+    container.add_bash_command('source /opt/ros/dashing/setup.bash')
     copyright_fix = ''
     if auto_fix:
         copyright_fix = '--add-missing Hunter\\ L.\\ Allen apache2 '
@@ -75,7 +75,7 @@ def test_ament_copyright(container, auto_fix=False, verbose=False):
 
 def test_ament_cppcheck(container, verbose=False):
     container.add_bash_command('cd %s' % repo_location)
-    container.add_bash_command('source /opt/ros/bouncy/setup.bash')
+    container.add_bash_command('source /opt/ros/dashing/setup.bash')
     container.add_bash_command('ament_cppcheck src include test')
     try:
         container.run(show_cmd=verbose)
@@ -90,7 +90,7 @@ def test_ament_cppcheck(container, verbose=False):
 
 def test_ament_cpplint(container, verbose=False):
     container.add_bash_command('cd %s' % repo_location)
-    container.add_bash_command('source /opt/ros/bouncy/setup.bash')
+    container.add_bash_command('source /opt/ros/dashing/setup.bash')
     container.add_bash_command('ament_cpplint src include test')
     try:
         container.run(show_cmd=verbose)

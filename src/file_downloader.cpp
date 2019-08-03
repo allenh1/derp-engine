@@ -18,8 +18,8 @@ FileDownloader::FileDownloader(QUrl _url, QObject * parent)
 : QObject(parent)
 {
   connect(
-    &m_WebCtrl, SIGNAL(finished(QNetworkReply *)),
-    this, SLOT(fileDownloaded(QNetworkReply *))
+    &m_WebCtrl, SIGNAL(finished(QNetworkReply*)),
+    this, SLOT(fileDownloaded(QNetworkReply*))
   );
 
   QNetworkRequest request(_url);
