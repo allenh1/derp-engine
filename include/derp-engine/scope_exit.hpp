@@ -16,8 +16,8 @@
 // But I changed the lambda to include by reference rather than value, see:
 // http://the-witness.net/news/2012/11/scopeexit-in-c11/comment-page-1/#comment-86873
 
-#ifndef SCOPE_EXIT_HPP_
-#define SCOPE_EXIT_HPP_
+#ifndef DERP_ENGINE__SCOPE_EXIT_HPP_
+#define DERP_ENGINE__SCOPE_EXIT_HPP_
 
 #include <functional>
 
@@ -38,4 +38,4 @@ make_scope_exit(Callable callable)
 {
   return ScopeExit<Callable>(callable);
 }
-#endif  // SCOPE_EXIT_HPP_
+#endif  // DERP_ENGINE__SCOPE_EXIT_HPP_

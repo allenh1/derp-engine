@@ -11,16 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef BSEARCH_DICTIONARY_HPP_
-#define BSEARCH_DICTIONARY_HPP_
+#ifndef DERP_ENGINE__BSEARCH_DICTIONARY_HPP_
+#define DERP_ENGINE__BSEARCH_DICTIONARY_HPP_
+
+#include <derp-engine/dictionary.hpp>
+
 // Implementation of a dictionary using an array and binary search
 // The class inherits from ArrayDictionary
 #include <string>
 #include <iostream>
 #include <memory>
 #include <utility>
-
-#include "dictionary.hpp"
 
 #define leftC(i) (((i) << 1) + 1)
 #define rightC(i) (((i) << 1) + 2)
@@ -95,4 +96,4 @@ private:
   bool sorted;
   std::unique_ptr<heap> h;
 };
-#endif  // BSEARCH_DICTIONARY_HPP_
+#endif  // DERP_ENGINE__BSEARCH_DICTIONARY_HPP_

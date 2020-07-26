@@ -1,7 +1,3 @@
-derp-engine
-Makefile
+build
 *~
 */*~
-*.o
-moc_*
-.qmake.stash

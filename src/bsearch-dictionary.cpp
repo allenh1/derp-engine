@@ -14,7 +14,8 @@
 
 // Implementation of a dictionary using an array and binary search
 // It will inherit from the ArrayDictionary
-#include "bsearch-dictionary.hpp"
+
+#include <derp-engine/bsearch-dictionary.hpp>
 
 #include <memory>
 #include <utility>

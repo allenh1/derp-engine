@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "ParseHTML.hpp"
+#include <derp-engine/ParseHTML.hpp>
+#include <derp-engine/scope_exit.hpp>
 
 #include <iostream>
 #include <memory>
 #include <unordered_map>
 #include <utility>
-
-#include "scope_exit.hpp"
 
 ParseHTML::ParseHTML(const QString & _url, std::unique_ptr<QString> _html)
 {

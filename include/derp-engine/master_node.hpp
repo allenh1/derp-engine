@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MASTER_NODE_HPP_
-#define MASTER_NODE_HPP_
+#ifndef DERP_ENGINE__MASTER_NODE_HPP_
+#define DERP_ENGINE__MASTER_NODE_HPP_
+
+#include <derp-engine/tcp_thread.hpp>
+#include <derp-engine/bsearch-dictionary.hpp>
+#include <derp-engine/QString_hash.hpp>
 
 /* Qt Includes */
 #include <QThread>
@@ -28,11 +32,6 @@
 #include <string>
 #include <iostream>
 #include <memory>
-
-/* File Includes */
-#include "tcp_thread.hpp"
-#include "bsearch-dictionary.hpp"
-#include "QString_hash.hpp"
 
 class tcp_thread;
 
@@ -112,4 +111,4 @@ private:
 
   void build_message(tcp_connection *);
 };
-#endif  // MASTER_NODE_HPP_
+#endif  // DERP_ENGINE__MASTER_NODE_HPP_

@@ -11,8 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef CRAWLER_HPP_
-#define CRAWLER_HPP_
+#ifndef DERP_ENGINE__CRAWLER_HPP_
+#define DERP_ENGINE__CRAWLER_HPP_
+
+#include <derp-engine/file_downloader.hpp>
+#include <derp-engine/ParseHTML.hpp>
+#include <derp-engine/QString_hash.hpp>
 
 #include <QtNetwork>
 #include <QSqlRecord>
@@ -21,10 +25,6 @@
 
 #include <unordered_map>
 #include <memory>
-
-#include "file_downloader.hpp"
-#include "ParseHTML.hpp"
-#include "QString_hash.hpp"
 
 class crawler : public QObject
 {
@@ -60,4 +60,4 @@ private:
   QStack<QString> m_unexplored;
   QSqlDatabase m_db;
 };
-#endif  // CRAWLER_HPP_
+#endif  // DERP_ENGINE__CRAWLER_HPP_

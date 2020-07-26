@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef QSTRING_HASH_HPP_
-#define QSTRING_HASH_HPP_
+#ifndef DERP_ENGINE__QSTRING_HASH_HPP_
+#define DERP_ENGINE__QSTRING_HASH_HPP_
+#include <QHash>
 #include <QString>
 
 namespace std
@@ -27,4 +28,4 @@ struct hash<QString>
   }
 };
 }  // namespace std
-#endif  // QSTRING_HASH_HPP_
+#endif  // DERP_ENGINE__QSTRING_HASH_HPP_

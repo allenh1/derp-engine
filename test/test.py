@@ -105,7 +105,8 @@ def test_ament_cpplint(container, verbose=False):
 
 def test_compilation(container, verbose=False):
     container.add_bash_command('cd %s' % repo_location)
-    container.add_bash_command('qmake -qt5')
+    container.add_bash_command('mkdir build && cd build')
+    container.add_bash_command('cmake ..')
     container.add_bash_command('make -j$(nproc)')
     try:
         container.run(show_cmd=verbose)

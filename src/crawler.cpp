@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "crawler.hpp"
+#include <derp-engine/crawler.hpp>
 
 #include <iostream>
 #include <memory>

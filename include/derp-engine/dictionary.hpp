@@ -14,8 +14,8 @@
 
 // Abstract class for a string dictionary
 
-#ifndef DICTIONARY_HPP_
-#define DICTIONARY_HPP_
+#ifndef DERP_ENGINE__DICTIONARY_HPP_
+#define DERP_ENGINE__DICTIONARY_HPP_
 
 #include <QString>
 
@@ -35,4 +35,4 @@ public:
   virtual std::unique_ptr<QString[]> keys(size_t * n) = 0;
 };
 
-#endif  // DICTIONARY_HPP_
+#endif  // DERP_ENGINE__DICTIONARY_HPP_

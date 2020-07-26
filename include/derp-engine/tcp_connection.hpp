@@ -11,8 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-#ifndef TCP_CONNECTION_HPP_
-#define TCP_CONNECTION_HPP_
+#ifndef DERP_ENGINE__TCP_CONNECTION_HPP_
+#define DERP_ENGINE__TCP_CONNECTION_HPP_
 
 #include <QtNetwork>
 #include <QObject>
@@ -48,4 +48,4 @@ private:
   QString m_hostname;
   QTcpSocket * m_p_socket;
 };
-#endif  // TCP_CONNECTION_HPP_
+#endif  // DERP_ENGINE__TCP_CONNECTION_HPP_

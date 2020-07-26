@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PARSEHTML_HPP_
-#define PARSEHTML_HPP_
+#ifndef DERP_ENGINE__PARSEHTML_HPP_
+#define DERP_ENGINE__PARSEHTML_HPP_
+
+#include <derp-engine/QString_hash.hpp>
 
 #include <QString>
 #include <QRegExp>
@@ -22,8 +24,6 @@
 #include <memory>
 #include <iostream>
 #include <unordered_map>
-
-#include "QString_hash.hpp"
 
 class ParseHTML
 {
@@ -51,4 +51,4 @@ private:
   void parseUrl(QString _url);
   void parseContent();
 };
-#endif  // PARSEHTML_HPP_
+#endif  // DERP_ENGINE__PARSEHTML_HPP_

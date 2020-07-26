@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <derp-engine/crawler.hpp>
+#include <derp-engine/master_node.hpp>
+
 #include <QCoreApplication>
 
 #include <string>
-
-#include "crawler.hpp"
-#include "master_node.hpp"
 
 QSqlDatabase setup_db()
 {

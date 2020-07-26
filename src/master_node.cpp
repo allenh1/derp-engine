@@ -12,13 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "master_node.hpp"
+#include <derp-engine/master_node.hpp>
+#include <derp-engine/scope_exit.hpp>
 
 #include <string>
 #include <memory>
 #include <utility>
-
-#include "scope_exit.hpp"
 
 /**
  * Construct the master node for the timefuse-server.

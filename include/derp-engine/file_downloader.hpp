@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FILE_DOWNLOADER_HPP_
-#define FILE_DOWNLOADER_HPP_
+#ifndef DERP_ENGINE__FILE_DOWNLOADER_HPP_
+#define DERP_ENGINE__FILE_DOWNLOADER_HPP_
+
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -38,4 +39,4 @@ private:
   QByteArray * m_DownloadedData;
   QString m_url;
 };
-#endif  // FILE_DOWNLOADER_HPP_
+#endif  // DERP_ENGINE__FILE_DOWNLOADER_HPP_

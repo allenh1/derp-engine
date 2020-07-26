@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef TCP_THREAD_HPP_
-#define TCP_THREAD_HPP_
-#include "tcp_connection.hpp"
+#ifndef DERP_ENGINE__TCP_THREAD_HPP_
+#define DERP_ENGINE__TCP_THREAD_HPP_
+
+#include <derp-engine/tcp_connection.hpp>
 
 #include <QDataStream>
 #include <QtNetwork>
@@ -71,4 +72,4 @@ private:
   std::unique_ptr<QQueue<tcp_connection>> m_pTcpMessages;
   std::unique_ptr<QTcpServer> m_pServer;
 };
-#endif  // TCP_THREAD_HPP_
+#endif  // DERP_ENGINE__TCP_THREAD_HPP_

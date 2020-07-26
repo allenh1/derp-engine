@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "file_downloader.hpp"
+#include <derp-engine/file_downloader.hpp>
 
 FileDownloader::FileDownloader(QUrl _url, QObject * parent)
 : QObject(parent)
